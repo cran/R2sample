@@ -46,7 +46,7 @@ List permute_disc_cpp(List dta) {
     for(i=0;i<k;++i) tmp=tmp+xnew[i];
     xnew[j]=xsum-tmp;
     ynew[j]=xy[j]-xnew[j];
-  } while ((xnew[j]<0)|(ynew[j]<0));   
+  } while ((xnew[j]<0)||(ynew[j]<0));   
   return List::create(Named("vals") = vals,
                       Named("x") = xnew, 
                       Named("y") = ynew);                    

@@ -63,7 +63,7 @@ NumericVector TS_cont_cpp(List dta,
        }  
        else 
          Fx[i]=Fx[i-1];  
-       while ( (x[j]<=sxy[i]) & (j<nx) ) {
+       while ( (j<nx) && (x[j]<=sxy[i]) ) {
           Fx[i]=Fx[i]+1.0/nx;
           ++j;
        }
@@ -75,7 +75,7 @@ NumericVector TS_cont_cpp(List dta,
        }  
        else 
          Fy[i]=Fy[i-1];  
-       while ( (y[j]<=sxy[i]) & (j<ny) ) {
+       while ( (j<ny) && (y[j]<=sxy[i]) ) {
           Fy[i]=Fy[i]+1.0/ny;
           ++j;
        }
@@ -147,7 +147,7 @@ NumericVector TS_cont_cpp(List dta,
   /*   Zhangs tests*/  
   
   LogicalVector H=in(CharacterVector::create("ZA", "ZK", "ZC"), doMethod);
-   if( (H[0]==TRUE) | (H[1]==TRUE) | (H[2]==TRUE) ) {
+   if( (H[0]==TRUE) || (H[1]==TRUE) || (H[2]==TRUE) ) {
    
       D[0]=1;
       for(i=0;i<nx;++i) D[i+1]=Rx[i];

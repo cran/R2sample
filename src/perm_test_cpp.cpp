@@ -37,7 +37,7 @@ List perm_test_cpp(NumericVector x,
    
 /* if they are in list of methods, run chi square test routines*/   
   LogicalVector H=in(CharacterVector::create("chi large", "chi small"), doMethod);
-  if( (H[0]==TRUE) | (H[1]==TRUE) ) {   
+  if( (H[0]==TRUE) || (H[1]==TRUE) ) {   
     if(k==1) tmp=chi_test_cont_cpp(dta, nbins);
     else tmp=chi_test_disc_cpp(dta, nbins);
     chi_TS=tmp[0];

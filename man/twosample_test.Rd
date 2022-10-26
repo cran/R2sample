@@ -16,19 +16,19 @@ twosample_test(
 )
 }
 \arguments{
-\item{x}{a vector of numbers or of counts}
+\item{x}{a vector of numbers if data is contiunous or of counts  if data is discrete.}
 
-\item{y}{a vector of numbers or of counts}
+\item{y}{a vector of numbers if data is contiunous or of counts  if data is discrete.}
 
-\item{vals}{a vector of numbers, the values of a discrete vector random variable. If it is missing, continuous data is assumed.}
+\item{vals}{a vector of numbers, the values of a discrete random variable. If it is missing, continuous data is assumed.}
 
-\item{B}{number of simulation runs for permutation test}
+\item{B}{=5000, number of simulation runs for permutation test}
 
-\item{nbins}{Number of bins for chi square tests.}
+\item{nbins}{=c(100,10), number of bins for chi square tests.}
 
-\item{maxProcessor}{Maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
+\item{maxProcessor}{=10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
 
-\item{discretize}{Should continuous data be binned?}
+\item{discretize}{=FALSE. Should continuous data be binned?}
 
 \item{doMethod}{Which methods should be included? If missing default methods are used.}
 }

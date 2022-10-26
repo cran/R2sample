@@ -80,7 +80,7 @@ NumericVector TS_disc_cpp(List dta,
   
  
   LogicalVector H=in(CharacterVector::create("KS", "Kuiper"), doMethod);
-  if( (H[0]==TRUE) | (H[1]==TRUE) ) {
+  if( (H[0]==TRUE) || (H[1]==TRUE) ) {
      double mx=double(cx[0])/nx-double(cy[0])/ny;
      double Mx=double(cx[0])/nx-double(cy[0])/ny;
      for(i=1;i<k;++i) {
@@ -98,7 +98,7 @@ NumericVector TS_disc_cpp(List dta,
   /* Cramer-vonMises and Anderson-Darling test*/
    
    H=in(CharacterVector::create("CvM", "AD"), doMethod);
-   if( (H[0]==TRUE) | (H[1]==TRUE) ) {
+   if( (H[0]==TRUE) || (H[1]==TRUE) ) {
      Fx(0)=x(0)/double(nx);
      Fy(0)=y(0)/double(ny);
      for(i=1;i<k;++i) {
@@ -142,8 +142,8 @@ NumericVector TS_disc_cpp(List dta,
     /* Zhang's tests */
   
   H=in(CharacterVector::create("ZA", "ZK", "ZC"), doMethod);
-  if( (H[0]==TRUE) | (H[1]==TRUE) | (H[2]==TRUE) ) {    D[0]=ceil(R[0])-1;
-    for(i=0;i<k;++i) D[i+1]=ceil(R[i+1])-ceil(R[i]);
+  if( (H[0]==TRUE) || (H[1]==TRUE) || (H[2]==TRUE) ) {    D[0]=ceil(R[0])-1;
+    for(i=0;i<k-1;++i) D[i+1]=ceil(R[i+1])-ceil(R[i]);
     D[k]=n+1-ceil(R[k-1]);
     p[0]=0.0;
     for(i=1;i<k+1;++i) p[i]=double(cx[i-1])/nx;
@@ -203,9 +203,11 @@ NumericVector TS_disc_cpp(List dta,
         a=(D1[i]+1.5)/n;
         tmp=tmpxy[2*i+1]-n*(a*log(a)+(1-a)*log(1-a));
         if(tmp>TS(7)) TS(7)=tmp;
-        a=(D1[i+1]-0.5)/n;
-        tmp=tmpxy[2*i+1]-n*(a*log(a)+(1-a)*log(1-a));
-        if(tmp>TS(7)) TS(7)=tmp;
+        if(i<k) {
+          a=(D1[i+1]-0.5)/n;
+          tmp=tmpxy[2*i+1]-n*(a*log(a)+(1-a)*log(1-a));
+          if(tmp>TS(7)) TS(7)=tmp;
+        }  
       }
      }     
      

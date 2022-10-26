@@ -1,13 +1,13 @@
 #'  twosample_test
 #'
 #' This function runs a number of two sample tests using Rcpp and parallel computing.
-#' @param  x  a vector of numbers or of counts  
-#' @param  y a vector of numbers or of counts  
-#' @param  vals a vector of numbers, the values of a discrete vector random variable. If it is missing, continuous data is assumed.
-#' @param  B number of simulation runs for permutation test
-#' @param  nbins Number of bins for chi square tests.
-#' @param  maxProcessor Maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
-#' @param  discretize  Should continuous data be binned?
+#' @param  x  a vector of numbers if data is contiunous or of counts  if data is discrete.
+#' @param  y a vector of numbers if data is contiunous or of counts  if data is discrete.
+#' @param  vals a vector of numbers, the values of a discrete random variable. If it is missing, continuous data is assumed.
+#' @param  B =5000, number of simulation runs for permutation test
+#' @param  nbins =c(100,10), number of bins for chi square tests.
+#' @param  maxProcessor =10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
+#' @param  discretize  =FALSE. Should continuous data be binned?
 #' @param  doMethod Which methods should be included? If missing default methods are used.
 #' @return A list of two numeric vectors, the test statistics and the p values. 
 #' @export 

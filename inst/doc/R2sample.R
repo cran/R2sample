@@ -45,26 +45,24 @@ domethod="all"
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  plot_power(twosample_power(
-#    rxy=function(a,b) list(x=rnorm(100), y=rt(200, b)),
-#    bvals=1:10
+#    f=function(mu) list(x=rnorm(100), y=rt(200, mu)),
+#    mu=1:10
 #  ))
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  plot_power(twosample_power(
-#    function(a,b) {
+#    function(p) {
 #      vals=0:10
-#      x=table(c(vals, rbinom(100,10,0.5)))-1 #Make sure each vector has length 11
-#      y=table(c(vals, rbinom(100,10, b)))-1  #and names 1-10
+#      x=table(c(vals, rbinom(100, 10, 0.5))) - 1 #Make sure each vector has length 11
+#      y=table(c(vals, rbinom(120, 10, p))) - 1  #and names 1-10
 #      vals=vals[x+y>0] # only vals with at least one count
 #      list(x=x[as.character(vals)],y=y[as.character(vals)], vals=vals)
 #    },
-#    bvals=seq(0.5, 0.6, length=5)
+#    p=seq(0.5, 0.6, length=5)
 #  ), "p")
 
 ## ----eval=FALSE---------------------------------------------------------------
 #  plot_power(twosample_power(
-#    rxy=function(a,b) list(x=rnorm(a), y=rnorm(a, 1)),
-#    avals=10*1:10,
-#    bvals=10*1:10
-#  ), "n")
+#    f=function(n) list(x=rnorm(n), y=rnorm(n, 1)),
+#    n=10*1:10), "n")
 

@@ -1,26 +1,42 @@
 #' twosample_power
 #'
 #' Find the power of various two sample tests using Rcpp and parallel computing.
-#' @param  rxy  function to generate a list with data sets x, y and (optional) vals
-#' @param  alpha =0.05, level of hypothesis test 
+#' @param  f  function to generate a list with data sets x, y and (optional) vals
+#' @param  ... additional arguments passed to f
+#' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  B =1000, number of simulation runs for permutation test and power.
-#' @param  avals parameter for function that generates x and y.
-#' @param  bvals parameter for function that generates x and y.
 #' @param  nbins =c(100,10), number of bins for chi large and chi small.
 #' @param  maxProcessor =10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
 #' @param  doMethod ="all", which methods should be included?
 #' @return A numeric vector of power values.
 #' @export 
 #' @examples
-#'  rxy=function(a,b) list(x=rnorm(50), y=rnorm(50,0.5))
-#'  twosample_power(rxy, B=100, maxProcessor = 1)
-#'  rxy=function(a,b) list(x=table(sample(1:10, size=1000, replace=TRUE)), 
+#'  f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
+#'  twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
+#'  f=function() list(x=table(sample(1:10, size=1000, replace=TRUE)), 
 #'        y=table(sample(1:10, size=1200, replace=TRUE)), vals=1:10)
-#'  twosample_power(rxy, B=100, maxProcessor = 1)
+#'  twosample_power(f, B=100, maxProcessor = 1)
 
-twosample_power=function(rxy, alpha=0.05, B=1000, avals=0, bvals=0, 
-                       nbins=c(100,10), maxProcessor=10, doMethod="all") {
-
+twosample_power=function(f, ..., alpha=0.05, B=1000, nbins=c(100,10), maxProcessor=10, 
+                       doMethod="all") {
+                       
+# create function rxy which generates data, to be passed to power_cpp                       
+    if(length(list(...))==0) { # f has 0 arguments
+       rxy=function(a=0, b=0) f()
+       avals=0
+       bvals=0
+    }
+    if(length(list(...))==1) { # f has 1 argument
+       rxy=function(a=0, b=0) f(a)
+       avals=list(...)[[1]]
+       bvals=0
+    }
+    if(length(list(...))==2) { # f has 2 arguments
+       rxy=function(a=0, b=0) f(a,b)
+       avals=list(...)[[1]]
+       bvals=list(...)[[2]]
+    }
+    
 # which methods should be run?   
     if(doMethod[1]=="all") 
         doMethod=c("chi large", "chi small", "t test", "KS", "Kuiper", 

@@ -33,16 +33,12 @@ NumericMatrix power_cpp(Function rxy,
   int const nummethods=10;                      
   int rp=yparam.size(), i, j, l, k;
   NumericMatrix pwr(rp, nummethods+2),zeromatrix(rp, nummethods+2);
-  NumericVector sim_data(nummethods),sim_perm(nummethods), crit_vals(nummethods), tmp(2);
+  NumericVector sim_data(nummethods),sim_perm(nummethods), crit_vals(nummethods), tmp(2), w(10000);
   IntegerVector counter(nummethods);
   colnames(pwr) = CharacterVector::create("chi large", "chi small", "t test", "KS", "Kuiper", 
                                               "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1");
-  CharacterVector rna(rp);
-  NumericVector w(1000);
 /*   include chi square tests?  */          
   LogicalVector H=in(CharacterVector::create("chi large", "chi small"), doMethod);
-  for(l=0;l<rp;++l) rna(l)=std::to_string(yparam[l]);
-  rownames(pwr) =  rna; 
   
 /*  loop over values in xparam, yparam */    
   for(l=0;l<rp;++l) {
@@ -59,7 +55,7 @@ NumericMatrix power_cpp(Function rxy,
           NumericVector vals = as<NumericVector>(dta["vals"]);    
           IntegerVector x = as<IntegerVector>(dta["x"]);
           IntegerVector y = as<IntegerVector>(dta["y"]);
-          if( (x.size()!=vals.size()) | (y.size()!=vals.size()) ) {
+          if( (x.size()!=vals.size()) || (y.size()!=vals.size()) ) {
                Rcout<<"Data generated has x, y and vals vectors of unequal lengths. Check your rxy function!\n";
                return zeromatrix;            
           }
@@ -74,12 +70,12 @@ NumericMatrix power_cpp(Function rxy,
 /*    dta.size()==2 means continuous data  */              
       if(dta.size()==2) {        
          sim_data=TS_cont_cpp(dta, doMethod);
-         if( (H[0]==TRUE) | (H[1]==TRUE) )  tmp=chi_test_cont_cpp(dta, nbins)[1];
+         if( (H[0]==TRUE) || (H[1]==TRUE) )  tmp=chi_test_cont_cpp(dta, nbins)[1];
       }  
       else {
          w=weights_cpp(dta);
          sim_data=TS_disc_cpp(dta, w, doMethod);
-         if( (H[0]==TRUE) | (H[1]==TRUE) )  tmp=chi_test_disc_cpp(dta, nbins)[1];
+         if( (H[0]==TRUE) || (H[1]==TRUE) )  tmp=chi_test_disc_cpp(dta, nbins)[1];
       }
       for(j=0;j<nummethods;++j) counter[j]=0;
       for(k=0;k<B;++k) {     

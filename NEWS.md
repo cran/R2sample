@@ -1,4 +1,26 @@
-# R2sample 0.1.1
+# R2sample 1.0.0
+ 
+                fixed a code problem in TS_disc_cpp on line 146
+                made some changes to the arguments of twosample_power   
+
+# R2sample 0.0.4
+
+                changed line 66 in TS_cont_cpp.cpp from 
+                   while ( (x[j]<=sxy[i]) && (j<nx))
+                to
+                   while ( (j<nx) && (x[j]<=sxy[i]) )   
+                to avoid heap-buffer-overflow error.   
+                   
+
+# R2sample 0.0.3
+
+                Changed & to && in a TS_cont_cpp.cpp
+
+# R2sample 0.0.2
+
+                Changed | to || in a number of the C++ routines per request from the CRAN Team  
+
+# R2sample 0.0.1
 
 * Added a `NEWS.md` file to track changes to the package.
 
@@ -8,3 +30,6 @@
 *               changed Maintainer to Authors@R  
 * Oct. 11, 2022: Eliminated all \dontrun and \donttest, added toy examples
                  Searched and eliminated all empty spaces in DESCRIPTION that I could find.  
+
+
+              

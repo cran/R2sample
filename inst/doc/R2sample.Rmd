@@ -62,7 +62,7 @@ twosample_test(x1, y1, vals=0:5, B=500,
 
 In this case the the null hypothesis is false and all 12 tests have p values much smaller than (say) 0.05 and therefore correctly reject the null hypothesis.
 
-Notice, it is the presence of the *vals* argument that tells the *twosample_test* command that the data is discrete. The vectors x1 and y1 are the counts. Note that the lengths of the three vectors have to be the same.
+Notice, it is the presence of the *vals* argument that tells the *twosample_test* command that the data is discrete. The vectors x and y are the counts. Note that the lengths of the three vectors have to be the same.
 
 
 ## The Methods
@@ -167,7 +167,7 @@ The routine has the following arguments:
 
 -  **x** and **y** are numeric vectors. In the continuous data case they are simply the data, in the discrete case the counts.  
 
-- **vals** a numeric vector of values of the discrete random variable. If missing continuous data is assumed. x, y and vals have to be of equal length. 
+- **vals** a numeric vector of values of the discrete random variable. If missing continuous data is assumed. In the discrete case x, y and vals have to be vectorsd of equal length. 
 
 -  **B=5000** number of simulation runs for permutation test. If B=0 only test statistics are found.
 
@@ -244,23 +244,21 @@ Say we wish to find the powers of the tests when one data set comes from a stand
 
 ```{r eval=FALSE}
 plot_power(twosample_power(
-  rxy=function(a,b) list(x=rnorm(100), y=rt(200, b)),
-  bvals=1:10
+  f=function(mu) list(x=rnorm(100), y=rt(200, mu)),
+  mu=1:10
 ))
 ```
 
 
 The arguments of **twosample_power** are
 
--  **rxy**  A function that generates data sets x and y, either continuous or the counts of  discrete variables. In the discrete case care needs to be taken that the resulting vectors have the same length as *vals*. Also the function needs to have two scalar parameters, even they are not used. The output has to be a list with elements x and y. In the case of discrete data the list also has to include a vector **vals**, the values of the discrete variable.
+-  **f**  A function that generates data sets x and y, either continuous or the counts of  discrete variables. In the discrete case care needs to be taken that the resulting vectors have the same length as *vals*. The output has to be a list with elements x and y. In the case of discrete data the list also has to include a vector **vals**, the values of the discrete variable.
+
+-  **...**  arguments passed to f. The most common case would be a single vector, but two vectors or none is also possible.
 
 -  **alpha=0.05** type I error probability to use in power calculation
 
 -  **B=1000** number of simulation runs
-
--  **avals** values of scalar parameter a in rxy.
-
--  **bvals** values of scalar parameter b in rxy.
 
 -  **nbins=c(100,10)** Number of bins to use in chi square tests
 
@@ -272,18 +270,18 @@ The arguments of **plot_power** are a matrix of powers created by **twosample_po
 
 ### Example 4
 
-We wish to find the powers of the tests when the data set x are 100 observations comes from a binomial n=10, p=0.5 and y 100 observations from from a binomial n=10 and a number of different success probabilities p. Note that in either case not all the possible values 0-10 will actually appear in every data set, so we need to take some care in assuring that x, y and vals match every time:
+We wish to find the powers of the tests when the data set x are 100 observations comes from a binomial n=10, p=0.5 and y 120 observations from from a binomial n=10 and a number of different success probabilities p. Note that in either case not all the possible values 0-10 will actually appear in every data set, so we need to take some care in assuring that x, y and vals match every time:
 
 ```{r eval=FALSE}
 plot_power(twosample_power(
-  function(a,b) {
+  function(p) {
     vals=0:10
-    x=table(c(vals, rbinom(100,10,0.5)))-1 #Make sure each vector has length 11
-    y=table(c(vals, rbinom(100,10, b)))-1  #and names 1-10
+    x=table(c(vals, rbinom(100, 10, 0.5))) - 1 #Make sure each vector has length 11
+    y=table(c(vals, rbinom(120, 10, p))) - 1  #and names 1-10
     vals=vals[x+y>0] # only vals with at least one count
     list(x=x[as.character(vals)],y=y[as.character(vals)], vals=vals)
   },
-  bvals=seq(0.5, 0.6, length=5)
+  p=seq(0.5, 0.6, length=5)
 ), "p")
 ```
 
@@ -293,10 +291,8 @@ We want to assess the effect of the sample size when one data set comes from a s
 
 ```{r eval=FALSE}
 plot_power(twosample_power(
-  rxy=function(a,b) list(x=rnorm(a), y=rnorm(a, 1)),
-  avals=10*1:10,
-  bvals=10*1:10
-), "n")
+  f=function(n) list(x=rnorm(n), y=rnorm(n, 1)),
+  n=10*1:10), "n")
 ```
 
 
