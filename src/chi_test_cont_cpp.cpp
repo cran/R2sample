@@ -5,6 +5,7 @@ using namespace Rcpp;
 //' 
 //' @param dta A list of numeric vectors.
 //' @param nbins A vector of length 2 of bin lengths.
+//' @keywords internal
 //' @return A list with test statistics and p values
 // [[Rcpp::export]]
 Rcpp::List chi_test_cont_cpp(Rcpp::List dta, Rcpp::IntegerVector nbins= IntegerVector::create(100,10)) {
@@ -19,9 +20,11 @@ Rcpp::List chi_test_cont_cpp(Rcpp::List dta, Rcpp::IntegerVector nbins= IntegerV
 /* for small data sets choose nbins(0) so that the combined 
      data set has expected counts at least five in each bin */
                  
-  if(x.size()+y.size()<500) nbins(0) = (x.size()+y.size())/5.0;               
+  if(x.size()+y.size()<500) {
+     k = (x.size()+y.size())/5.0;
+     if(nbins(0)>k) nbins(0) = k;                 
+  }
   if(nbins(0)<nbins(1)) nbins(1)=nbins(0);
-
 /* create combined data set xy and sort vectors */  
   for(i=0;i<nx;++i) xy[i]=x[i];
   for(i=0;i<ny;++i) xy[i+nx]=y[i];
@@ -71,6 +74,7 @@ Rcpp::List chi_test_cont_cpp(Rcpp::List dta, Rcpp::IntegerVector nbins= IntegerV
          chi(k)=chi(k)+(yc(i)-ny*pE)*(yc(i)-ny*pE)/ny/pE; 
        }  
     }
+
 /* find p values using chi-square approximation  */      
     pvals(k)=1-R::pchisq(chi(k), df(k), 1, 0);
   }  

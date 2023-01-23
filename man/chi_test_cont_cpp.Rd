@@ -17,3 +17,4 @@ A list with test statistics and p values
 \description{
 run chi square test for continuous data.
 }
+\keyword{internal}

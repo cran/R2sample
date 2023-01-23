@@ -17,3 +17,4 @@ A numeric vector
 \description{
 cpp version of R routine rep
 }
+\keyword{internal}

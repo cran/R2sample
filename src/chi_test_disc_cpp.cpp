@@ -4,7 +4,8 @@ using namespace Rcpp;
 //' run chi square test for discrete data.
 //' 
 //' @param dta A list of numeric vectors.
-//' @param nbins Integer vector of length 2 with number of bins
+//' @param nbins Integer vector of length 2 with number of bins.
+//' @keywords internal
 //' @return A list with test statistics, p values and degrees of freedom
 // [[Rcpp::export]]
 Rcpp::List  chi_test_disc_cpp(Rcpp::List dta, Rcpp::IntegerVector nbins=Rcpp::IntegerVector::create(100, 10)) {

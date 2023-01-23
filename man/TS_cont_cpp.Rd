@@ -13,7 +13,7 @@ TS_cont_cpp(
 \arguments{
 \item{dta}{A list}
 
-\item{doMethod}{A character vector of methods to include}
+\item{doMethod}{A character vector of methods to include.}
 }
 \value{
 A vector of test statistics
@@ -21,3 +21,4 @@ A vector of test statistics
 \description{
 find test statistics for continuous data
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ A list of permuted vectors
 \description{
 permute discrete data
 }
+\keyword{internal}

@@ -5,6 +5,7 @@ using namespace Rcpp;
 //' 
 //' @param x numeric vector
 //' @param times integer vector
+//' @keywords internal
 //' @return A numeric vector
 // [[Rcpp::export]]
 Rcpp::NumericVector rep_cpp(Rcpp::NumericVector x, Rcpp::IntegerVector times) {

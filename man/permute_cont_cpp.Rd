@@ -10,8 +10,9 @@ permute_cont_cpp(dta)
 \item{dta}{A list of numeric vectors.}
 }
 \value{
-A list of permuted x and y vectors
+A list of permuted x and y vectors.
 }
 \description{
 permute continuous data
 }
+\keyword{internal}

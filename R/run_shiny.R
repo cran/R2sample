@@ -1,5 +1,3 @@
-#' run_shiny
-#'
 #' Runs the shiny app associated with R2sample package
 #' @return No return value, called for side effect of opening a shiny app
 #' @export

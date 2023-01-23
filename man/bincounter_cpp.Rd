@@ -17,3 +17,4 @@ Integer vector of counts
 \description{
 count occurances in bins. Useful for power calculations. Replaces hist command from R.
 }
+\keyword{internal}

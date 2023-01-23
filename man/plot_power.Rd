@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_power.R
 \name{plot_power}
 \alias{plot_power}
-\title{plot_power}
+\title{This function draws the power graph, with curves sorted by the mean power and smoothed for easier reading.}
 \usage{
 plot_power(pwr, xname = " ", Smooth = TRUE)
 }

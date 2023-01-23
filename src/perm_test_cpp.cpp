@@ -15,15 +15,16 @@ using namespace Rcpp;
 //' @param vals A numeric vector. Indicates discrete data.
 //' @param nbins Two bin numbers for chi square  test.
 //' @param B Number of simulation runs.
-//' @param doMethod A character vector of methods to include
+//' @param doMethod A character vector of methods to include.
+//' @keywords internal
 //' @return A list with test statistics and p values
 // [[Rcpp::export]]
 List perm_test_cpp(NumericVector x, 
-                            NumericVector y, 
-                            NumericVector vals=0.0, 
-                            IntegerVector nbins= IntegerVector::create(100,10), 
-                            int B=5000, 
-                CharacterVector doMethod= CharacterVector::create("chi large", "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1")) { 
+                   NumericVector y, 
+                   NumericVector vals=0.0, 
+                   IntegerVector nbins= IntegerVector::create(100,10), 
+                   int B=5000, 
+                   CharacterVector doMethod= CharacterVector::create("chi large", "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1")) { 
                 
   int const nummethods=10;
   int k=vals.size(), i, j;

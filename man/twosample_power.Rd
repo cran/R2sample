@@ -2,7 +2,7 @@
 % Please edit documentation in R/twosample_power.R
 \name{twosample_power}
 \alias{twosample_power}
-\title{twosample_power}
+\title{Find the power of various two sample tests using Rcpp and parallel computing.}
 \usage{
 twosample_power(
   f,

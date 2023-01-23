@@ -4,7 +4,8 @@ using namespace Rcpp;
 //' permute continuous data
 //' 
 //' @param dta A list of numeric vectors.
-//' @return A list of permuted x and y vectors
+//' @return A list of permuted x and y vectors.
+//' @keywords internal
 // [[Rcpp::export]]
 List permute_cont_cpp(List dta) {
   

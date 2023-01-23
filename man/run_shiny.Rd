@@ -2,7 +2,7 @@
 % Please edit documentation in R/run_shiny.R
 \name{run_shiny}
 \alias{run_shiny}
-\title{run_shiny}
+\title{Runs the shiny app associated with R2sample package}
 \usage{
 run_shiny()
 }

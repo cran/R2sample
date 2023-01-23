@@ -25,7 +25,7 @@ perm_test_cpp(
 
 \item{B}{Number of simulation runs.}
 
-\item{doMethod}{A character vector of methods to include}
+\item{doMethod}{A character vector of methods to include.}
 }
 \value{
 A list with test statistics and p values
@@ -33,3 +33,4 @@ A list with test statistics and p values
 \description{
 run permutation test.
 }
+\keyword{internal}

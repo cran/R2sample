@@ -6,7 +6,8 @@ using namespace Rcpp;
 //' find test statistics for continuous data
 //' 
 //' @param dta A list
-//' @param doMethod A character vector of methods to include
+//' @param doMethod A character vector of methods to include.
+//' @keywords internal
 //' @return A vector of test statistics
 // [[Rcpp::export]]
 
@@ -38,7 +39,7 @@ NumericVector TS_cont_cpp(List dta,
   
   
   /* order(data)-1 and rank(data)-1 */
-  
+   
   for(i=0;i<n;++i) sxy[i]=xy[i]; 
   std::sort(sxy.begin(), sxy.end());
   Function Rorder("order");
@@ -51,7 +52,7 @@ NumericVector TS_cont_cpp(List dta,
   std::sort(Rx.begin(), Rx.end());
   for(i=0;i<ny;++i) Ry[i]=R[i+nx]+1;
   std::sort(Ry.begin(), Ry.end());    
-  
+ 
 
   /* empirical distribution functions of x and y evaluated on 
      combined data set*/
@@ -83,36 +84,30 @@ NumericVector TS_cont_cpp(List dta,
   
   /*        t test  */  
   
-  if(in(CharacterVector::create("t test"), doMethod)[0]==TRUE) {
-    double cx=0.0;
-    for(i=0;i<nx;++i) cx+=x[i];
-    double cy=0.0;
-    for(i=0;i<ny;++i) cy+=y[i];
-    TS(0)=std::abs(cx/nx-cy/ny); 
-  }
+   if(in(CharacterVector::create("t test"), doMethod)[0]==TRUE) {
+      TS(0) = std::abs(mean(x)-mean(y)); 
+   }
   
-  /*  Kolmogorov-Smirnov and Kuipertests*/  
+  /*  Kolmogorov-Smirnov and Kuiper Tests*/  
+   LogicalVector H=in(CharacterVector::create("KS", "Kuiper"), doMethod);
+   if( (H[0]==TRUE) || (H[1]==TRUE) ) {
   
-  double mx=Fx[0]-Fy[0], Mx=Fy[0]-Fx[0];
-  TS(1)=std::abs(mx);
-  for(i=1;i<n;++i) {
+    double mx=Fx[0]-Fy[0], Mx=Fy[0]-Fx[0];
+    TS(1)=std::abs(mx);
+    for(i=1;i<n;++i) {
       if(std::abs(Fx[i]-Fy[i])>TS(1)) TS(1)=std::abs(Fx[i]-Fy[i]);
       if(Fx[i]-Fy[i]>mx) mx=Fx[i]-Fy[i];
       if(Fy[i]-Fx[i]>mx) Mx=Fy[i]-Fx[i];      
-  }
-  if(in(CharacterVector::create("KS"), doMethod)[0]==FALSE) TS(1)=0.0;
-  if(in(CharacterVector::create("Kuiper"), doMethod)[0]==TRUE) 
+    }
+    if(in(CharacterVector::create("KS"), doMethod)[0]==FALSE) TS(1)=0.0;
+    if(in(CharacterVector::create("Kuiper"), doMethod)[0]==TRUE) 
         TS(2)=std::abs(mx)+std::abs(Mx);
+   }     
      
   /* Cramer-vonMises and Anderson-Darling test*/
    
    if(in(CharacterVector::create("CvM"), doMethod)[0]==TRUE) {
-       TS(3)=0.0;
-       for(i=0;i<n-1;++i) {
-          tmp=Fx[i]-Fy[i];
-          TS(3)=TS(3)+tmp*tmp;
-       }   
-       TS(3)=TS(3)*nx*ny/n/n;
+       TS(3)=tmp=sum((Fx-Fy)*(Fx-Fy)) *nx*ny/n/n;       
    }
    
   /*    Anderson-Darling test*/  
@@ -146,7 +141,7 @@ NumericVector TS_cont_cpp(List dta,
   
   /*   Zhangs tests*/  
   
-  LogicalVector H=in(CharacterVector::create("ZA", "ZK", "ZC"), doMethod);
+  H=in(CharacterVector::create("ZA", "ZK", "ZC"), doMethod);
    if( (H[0]==TRUE) || (H[1]==TRUE) || (H[2]==TRUE) ) {
    
       D[0]=1;
@@ -253,7 +248,7 @@ NumericVector TS_cont_cpp(List dta,
       TS(9) = TS(9)+(1.0-uu(nx+ny-3))*std::abs(xx(nx+ny-2)-yy(nx+ny-2));
     }
   }
-   
+
   return TS;
 }
 

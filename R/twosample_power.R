@@ -1,5 +1,3 @@
-#' twosample_power
-#'
 #' Find the power of various two sample tests using Rcpp and parallel computing.
 #' @param  f  function to generate a list with data sets x, y and (optional) vals
 #' @param  ... additional arguments passed to f

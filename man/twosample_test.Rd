@@ -2,7 +2,7 @@
 % Please edit documentation in R/twosample_test.R
 \name{twosample_test}
 \alias{twosample_test}
-\title{twosample_test}
+\title{This function runs a number of two sample tests using Rcpp and parallel computing.}
 \usage{
 twosample_test(
   x,

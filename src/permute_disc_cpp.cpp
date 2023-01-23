@@ -6,6 +6,7 @@ using namespace Rcpp;
 //' permute discrete data
 //' 
 //' @param dta A list of numeric vectors.
+//' @keywords internal
 //' @return A list of permuted vectors
 // [[Rcpp::export]]
 List permute_disc_cpp(List dta) {

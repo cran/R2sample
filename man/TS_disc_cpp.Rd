@@ -16,7 +16,7 @@ TS_disc_cpp(
 
 \item{ADweights}{A vector of weights for AD method}
 
-\item{doMethod}{A character vector of methods to include}
+\item{doMethod}{A character vector of methods to include.}
 }
 \value{
 A vector of test statistics
@@ -24,3 +24,4 @@ A vector of test statistics
 \description{
 find test statistics for discrete data
 }
+\keyword{internal}

@@ -18,7 +18,7 @@ twosample_test(x, y, B=500, maxProcessor = 2, doMethod="all")
 ## -----------------------------------------------------------------------------
 x1=table(rbinom(1000, 5, 0.5))
 y1=table(rbinom(1200, 5, 0.55))
-rbind(0:5,x1, y1)
+rbind(x1, y1)
 twosample_test(x1, y1, vals=0:5, B=500, 
                maxProcessor = 2, doMethod="all")$p.values
 

@@ -28,7 +28,7 @@ power_cpp(
 
 \item{yparam}{arguments for r2.}
 
-\item{doMethod}{A character vector of methods to include}
+\item{doMethod}{A character vector of methods to include.}
 }
 \value{
 A numeric matrix of powers
@@ -36,3 +36,4 @@ A numeric matrix of powers
 \description{
 Find the power of various tests via permutation.
 }
+\keyword{internal}

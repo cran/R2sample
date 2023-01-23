@@ -7,7 +7,7 @@
 weights_cpp(dta)
 }
 \arguments{
-\item{dta}{A list with vectors x, y and vals}
+\item{dta}{A list with vectors x, y and vals.}
 }
 \value{
 A vector of weights
@@ -15,3 +15,4 @@ A vector of weights
 \description{
 find weights for several statistics for discrete data
 }
+\keyword{internal}

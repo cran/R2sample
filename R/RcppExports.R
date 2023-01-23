@@ -4,7 +4,8 @@
 #' find test statistics for continuous data
 #' 
 #' @param dta A list
-#' @param doMethod A character vector of methods to include
+#' @param doMethod A character vector of methods to include.
+#' @keywords internal
 #' @return A vector of test statistics
 TS_cont_cpp <- function(dta, doMethod = as.character( c("chi large", "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1"))) {
     .Call(`_R2sample_TS_cont_cpp`, dta, doMethod)
@@ -14,7 +15,8 @@ TS_cont_cpp <- function(dta, doMethod = as.character( c("chi large", "chi small"
 #' 
 #' @param dta A list
 #' @param ADweights A vector of weights for AD method
-#' @param doMethod A character vector of methods to include
+#' @param doMethod A character vector of methods to include.
+#' @keywords internal
 #' @return A vector of test statistics
 TS_disc_cpp <- function(dta, ADweights, doMethod = as.character( c("chi large",                  "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1"))) {
     .Call(`_R2sample_TS_disc_cpp`, dta, ADweights, doMethod)
@@ -24,6 +26,7 @@ TS_disc_cpp <- function(dta, ADweights, doMethod = as.character( c("chi large", 
 #' 
 #' @param x numeric vector
 #' @param bins numeric vector
+#' @keywords internal
 #' @return Integer vector of counts
 bincounter_cpp <- function(x, bins) {
     .Call(`_R2sample_bincounter_cpp`, x, bins)
@@ -33,6 +36,7 @@ bincounter_cpp <- function(x, bins) {
 #' 
 #' @param dta A list of numeric vectors.
 #' @param nbins A vector of length 2 of bin lengths.
+#' @keywords internal
 #' @return A list with test statistics and p values
 chi_test_cont_cpp <- function(dta, nbins = as.integer( c(100,10))) {
     .Call(`_R2sample_chi_test_cont_cpp`, dta, nbins)
@@ -41,7 +45,8 @@ chi_test_cont_cpp <- function(dta, nbins = as.integer( c(100,10))) {
 #' run chi square test for discrete data.
 #' 
 #' @param dta A list of numeric vectors.
-#' @param nbins Integer vector of length 2 with number of bins
+#' @param nbins Integer vector of length 2 with number of bins.
+#' @keywords internal
 #' @return A list with test statistics, p values and degrees of freedom
 chi_test_disc_cpp <- function(dta, nbins = as.integer( c(100, 10))) {
     .Call(`_R2sample_chi_test_disc_cpp`, dta, nbins)
@@ -54,7 +59,8 @@ chi_test_disc_cpp <- function(dta, nbins = as.integer( c(100, 10))) {
 #' @param vals A numeric vector. Indicates discrete data.
 #' @param nbins Two bin numbers for chi square  test.
 #' @param B Number of simulation runs.
-#' @param doMethod A character vector of methods to include
+#' @param doMethod A character vector of methods to include.
+#' @keywords internal
 #' @return A list with test statistics and p values
 perm_test_cpp <- function(x, y, vals = 0.0, nbins = as.integer( c(100,10)), B = 5000L, doMethod = as.character( c("chi large", "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1"))) {
     .Call(`_R2sample_perm_test_cpp`, x, y, vals, nbins, B, doMethod)
@@ -63,7 +69,8 @@ perm_test_cpp <- function(x, y, vals = 0.0, nbins = as.integer( c(100,10)), B = 
 #' permute continuous data
 #' 
 #' @param dta A list of numeric vectors.
-#' @return A list of permuted x and y vectors
+#' @return A list of permuted x and y vectors.
+#' @keywords internal
 permute_cont_cpp <- function(dta) {
     .Call(`_R2sample_permute_cont_cpp`, dta)
 }
@@ -71,6 +78,7 @@ permute_cont_cpp <- function(dta) {
 #' permute discrete data
 #' 
 #' @param dta A list of numeric vectors.
+#' @keywords internal
 #' @return A list of permuted vectors
 permute_disc_cpp <- function(dta) {
     .Call(`_R2sample_permute_disc_cpp`, dta)
@@ -84,7 +92,8 @@ permute_disc_cpp <- function(dta) {
 #' @param B Number of simulation runs.
 #' @param xparam  arguments for r1.
 #' @param yparam  arguments for r2.
-#' @param doMethod A character vector of methods to include
+#' @param doMethod A character vector of methods to include.
+#' @keywords internal
 #' @return A numeric matrix of powers
 power_cpp <- function(rxy, nbins = as.integer( c(100,10)), alpha = 0.05, B = 1000L, xparam = 0.0, yparam = 0.0, doMethod = as.character( c("chi large",         "chi small", "t test", "KS", "Kuiper", "CvM", "AD", "LR", "ZA", "ZK", "ZC", "Wassp1"))) {
     .Call(`_R2sample_power_cpp`, rxy, nbins, alpha, B, xparam, yparam, doMethod)
@@ -94,6 +103,7 @@ power_cpp <- function(rxy, nbins = as.integer( c(100,10)), alpha = 0.05, B = 100
 #' 
 #' @param x numeric vector
 #' @param times integer vector
+#' @keywords internal
 #' @return A numeric vector
 rep_cpp <- function(x, times) {
     .Call(`_R2sample_rep_cpp`, x, times)
@@ -101,7 +111,8 @@ rep_cpp <- function(x, times) {
 
 #' find weights for several statistics for discrete data
 #' 
-#' @param dta A list with vectors x, y and vals
+#' @param dta A list with vectors x, y and vals.
+#' @keywords internal
 #' @return A vector of weights
 weights_cpp <- function(dta) {
     .Call(`_R2sample_weights_cpp`, dta)

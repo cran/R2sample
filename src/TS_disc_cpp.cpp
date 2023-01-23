@@ -5,7 +5,8 @@ using namespace Rcpp;
 //' 
 //' @param dta A list
 //' @param ADweights A vector of weights for AD method
-//' @param doMethod A character vector of methods to include
+//' @param doMethod A character vector of methods to include.
+//' @keywords internal
 //' @return A vector of test statistics
 // [[Rcpp::export]]
 

@@ -9,7 +9,7 @@ chi_test_disc_cpp(dta, nbins = as.integer(c(100, 10)))
 \arguments{
 \item{dta}{A list of numeric vectors.}
 
-\item{nbins}{Integer vector of length 2 with number of bins}
+\item{nbins}{Integer vector of length 2 with number of bins.}
 }
 \value{
 A list with test statistics, p values and degrees of freedom
@@ -17,3 +17,4 @@ A list with test statistics, p values and degrees of freedom
 \description{
 run chi square test for discrete data.
 }
+\keyword{internal}

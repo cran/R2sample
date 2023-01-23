@@ -1,5 +1,3 @@
-#'  twosample_test
-#'
 #' This function runs a number of two sample tests using Rcpp and parallel computing.
 #' @param  x  a vector of numbers if data is contiunous or of counts  if data is discrete.
 #' @param  y a vector of numbers if data is contiunous or of counts  if data is discrete.

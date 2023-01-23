@@ -18,7 +18,8 @@ using namespace Rcpp;
 //' @param B Number of simulation runs.
 //' @param xparam  arguments for r1.
 //' @param yparam  arguments for r2.
-//' @param doMethod A character vector of methods to include
+//' @param doMethod A character vector of methods to include.
+//' @keywords internal
 //' @return A numeric matrix of powers
 // [[Rcpp::export]]
 NumericMatrix power_cpp(Function rxy, 

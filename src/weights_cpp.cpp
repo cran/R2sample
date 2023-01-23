@@ -3,7 +3,8 @@ using namespace Rcpp;
 
 //' find weights for several statistics for discrete data
 //' 
-//' @param dta A list with vectors x, y and vals
+//' @param dta A list with vectors x, y and vals.
+//' @keywords internal
 //' @return A vector of weights
 // [[Rcpp::export]]
 

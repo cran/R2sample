@@ -1,5 +1,3 @@
-#'  plot_power
-#'
 #' This function draws the power graph, with curves sorted by the mean power and smoothed for easier reading.
 #' @param  pwr  a matrix of power values, usually from the twosample_power command 
 #' @param  Smooth =TRUE lines are smoothed for easier reading
@@ -23,7 +21,7 @@ plt=ggplot2::ggplot(data=df, ggplot2::aes(df$x, df$y, color=df$Method))+
      ggplot2::xlab(xname)+
      ggplot2::ylab("Power")+
      ggplot2::scale_color_manual(labels=lvls,
-                                 values=1:12,
+                                 values=seq_along(mu),
                                  name='Method')
  if(Smooth) plt=plt+
     ggplot2::geom_smooth(formula = y ~ x, method="loess", se=FALSE, span=0.25)

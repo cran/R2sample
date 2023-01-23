@@ -1,3 +1,7 @@
+# R2sample 1.1.0
+                fixed a bug in calculation of chi square test, made cpp routines 
+                invisible, fixed issue with help titles
+                  
 # R2sample 1.0.0
  
                 fixed a code problem in TS_disc_cpp on line 146
