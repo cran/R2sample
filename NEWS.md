@@ -1,3 +1,9 @@
+# R2sample 2.2.0
+                some minor bug fixes, additions to vignette
+                
+# R2sample 2.1.0
+                Added routines for calculating p values adjusted for simultaneous testing
+                
 # R2sample 1.1.0
                 fixed a bug in calculation of chi square test, made cpp routines 
                 invisible, fixed issue with help titles

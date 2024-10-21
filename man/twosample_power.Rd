@@ -7,27 +7,39 @@
 twosample_power(
   f,
   ...,
+  TS,
+  TSextra,
   alpha = 0.05,
-  B = 1000,
-  nbins = c(100, 10),
-  maxProcessor = 10,
-  doMethod = "all"
+  B = c(1000, 1000),
+  nbins = c(50, 10),
+  minexpcount = 5,
+  UseLargeSample,
+  samplingmethod = "independence",
+  maxProcessor = 10
 )
 }
 \arguments{
-\item{f}{function to generate a list with data sets x, y and (optional) vals}
+\item{f}{function to generate a list with data sets x, y and (optional) vals, weights}
 
-\item{...}{additional arguments passed to f}
+\item{...}{additional arguments passed to f, up to 2}
+
+\item{TS}{routine to calculate test statistics for non-chi-square tests}
+
+\item{TSextra}{additional info passed to TS, if necessary}
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
-\item{B}{=1000, number of simulation runs for permutation test and power.}
+\item{B}{=c(1000, 2000), number of simulation runs for power and permutation test.}
 
-\item{nbins}{=c(100,10), number of bins for chi large and chi small.}
+\item{nbins}{=c(50,10), number of bins for chi large and chi small.}
+
+\item{minexpcount}{=5 minimum required count for chi square tests}
+
+\item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
+
+\item{samplingmethod}{=independence or MCMC in discrete data case}
 
 \item{maxProcessor}{=10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
-
-\item{doMethod}{="all", which methods should be included?}
 }
 \value{
 A numeric vector of power values.
@@ -37,8 +49,9 @@ Find the power of various two sample tests using Rcpp and parallel computing.
 }
 \examples{
  f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
- twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
- f=function() list(x=table(sample(1:10, size=1000, replace=TRUE)), 
-       y=table(sample(1:10, size=1200, replace=TRUE)), vals=1:10)
- twosample_power(f, B=100, maxProcessor = 1)
+ twosample_power(f, mu=c(0,2), B=c(100, 100), maxProcessor = 1)
+ f=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
+       y=table(sample(1:5, size=n, replace=TRUE, 
+       prob=c(1, 1, 1, 1, p))), vals=1:5)
+ twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=c(100, 100), maxProcessor = 1)
 }

@@ -1,5 +1,5 @@
-allmethods <- c("chi large", "chi small", "t test", "KS", "Kuiper", "AD", "CdM", "LR", "ZK", "ZA", "ZC", "Wassp1")
-default.methods = list(cont=c("chi small", "ZA", "ZK", "Wassp1"), disc=c("chi small", "ZA", "Kuiper", "Wassp1"))
+allmethods <- list(cont=c("t test", "KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "ZK", "ZC", "Wassp1", "ES large", "ES small", "EP large", "EP small"),
+                   disc= c("t test", "KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "Wassp1", "large", "small"))
 
 shinyUI(fluidPage(
   titlePanel("Twosample Tests"),
@@ -7,18 +7,18 @@ shinyUI(fluidPage(
   fluidRow(
       column(2, actionButton("gobutton",HTML("<h4><font color=\"red\">Go<font color=\"black\"></h4>"))), 
       column(2, textInput("B", "# of Simulations", value="5000", width="85%")),
-      column(3, textInput("nbins", "Number of Bins", value="100, 10", width="85%")),
+      column(3, textInput("nbins", "Number of Bins", value="50, 10", width="85%")),
       column(3, textInput("maxProcessor", "Number of Processors to Use", value="10", width="85%"))
   ), 
   HTML("<hr>"), 
   fluidRow(
     conditionalPanel( condition = "input.datatype == 'Continuous'",
            column(10, checkboxGroupInput("cmethods", HTML("<h4>Methods</h4>"), 
-                allmethods, inline=TRUE, selected=default.methods$cont))
+                allmethods$cont, inline=TRUE, selected=allmethods$cont))
     ),       
     conditionalPanel( condition = "input.datatype == 'Discrete'",
            column(10, checkboxGroupInput("dmethods", HTML("<h4>Methods</h4>"), 
-                allmethods, inline=TRUE, selected=default.methods$disc))
+                allmethods$disc, inline=TRUE, selected=allmethods$disc))
     )    
   ),  
   HTML("<hr>"),  
@@ -27,8 +27,7 @@ shinyUI(fluidPage(
      conditionalPanel( condition = "input.datatype == 'Continuous'",
         HTML("<h4>Two files for the two data sets</h4>"),
         column(3, fileInput('fileData1', 'Upload file with data set 1')),
-        column(3, fileInput('fileData2', 'Upload file with data set 2')), 
-        column(3, selectInput("discretize", "Discretize Data?", choices=c("No", "Yes")))     
+        column(3, fileInput('fileData2', 'Upload file with data set 2'))   
      ),
      conditionalPanel( condition = "input.datatype == 'Discrete'",
         HTML("<h4>File should have three columns for the x counts,  y counts and values, separated by an empty spaces</h4>"),

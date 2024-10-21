@@ -7,30 +7,45 @@
 twosample_test(
   x,
   y,
-  vals,
+  vals = NA,
+  TS,
+  TSextra,
+  wx = rep(1, length(x)),
+  wy = rep(1, length(y)),
   B = 5000,
-  nbins = c(100, 10),
-  maxProcessor = 10,
-  discretize = FALSE,
-  doMethod
+  nbins = c(50, 10),
+  maxProcessor,
+  UseLargeSample,
+  samplingmethod = "independence",
+  doMethods = "all"
 )
 }
 \arguments{
-\item{x}{a vector of numbers if data is contiunous or of counts  if data is discrete.}
+\item{x}{a vector of numbers if data is continuous or of counts  if data is discrete.}
 
-\item{y}{a vector of numbers if data is contiunous or of counts  if data is discrete.}
+\item{y}{a vector of numbers if data is continuous or of counts  if data is discrete.}
 
-\item{vals}{a vector of numbers, the values of a discrete random variable. If it is missing, continuous data is assumed.}
+\item{vals}{=NA, a vector of numbers, the values of a discrete random variable. NA if data is continuous data.}
+
+\item{TS}{routine to calculate test statistics for non-chi-square tests}
+
+\item{TSextra}{additional info passed to TS, if necessary}
+
+\item{wx}{A numeric vector of weights of x.}
+
+\item{wy}{A numeric vector of weights of y.}
 
 \item{B}{=5000, number of simulation runs for permutation test}
 
-\item{nbins}{=c(100,10), number of bins for chi square tests.}
+\item{nbins}{=c(50,10), number of bins for chi square tests.}
 
-\item{maxProcessor}{=10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
+\item{maxProcessor}{maximum number of cores to use. If missing (the default) no parallel processing is used.}
 
-\item{discretize}{=FALSE. Should continuous data be binned?}
+\item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
 
-\item{doMethod}{Which methods should be included? If missing default methods are used.}
+\item{samplingmethod}{="independence" or "MCMC" for discrete data}
+
+\item{doMethods}{="all" Which methods should be included? If missing all methods are used.}
 }
 \value{
 A list of two numeric vectors, the test statistics and the p values.
@@ -39,9 +54,11 @@ A list of two numeric vectors, the test statistics and the p values.
 This function runs a number of two sample tests using Rcpp and parallel computing.
 }
 \examples{
- twosample_test(rnorm(1000), rt(1000, 4), B=1000, maxProcessor = 1)
+ R2sample::twosample_test(rnorm(1000), rt(1000, 4), B=1000)
+ myTS=function(x,y) {z=c(mean(x)-mean(y),sd(x)-sd(y));names(z)=c("M","S");z}
+ R2sample::twosample_test(rnorm(1000), rt(1000, 4), TS=myTS, B=1000)
  vals=1:5
  x=table(sample(vals, size=100, replace=TRUE))
- y=table(sample(vals, size=100, replace=TRUE, prob=c(1,1,2,1,1)))
- twosample_test(x, y, vals, maxProcessor = 1)
+ y=table(sample(vals, size=100, replace=TRUE, prob=c(1,1,3,1,1)))
+ R2sample::twosample_test(x, y, vals)
 }

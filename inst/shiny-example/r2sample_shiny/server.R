@@ -27,13 +27,7 @@ shinyServer(function(input, output,session) {
 
     })
 
-    getInfo=eventReactive(input$gobutton, {
-       list(
-         nbins=as.numeric(strsplit(input$nbins,",")[[1]]),
-         avals=eval(parse(text=input$avals)),
-         bvals=eval(parse(text=input$bvals))
-       )
-    })
+
     
     
 
@@ -42,13 +36,11 @@ shinyServer(function(input, output,session) {
         nbins=as.numeric(strsplit(input$nbins,",")[[1]]) 
         if(input$datatype=="Continuous") {
             methods=input$cmethods
-            if(input$discretize==TRUE) methods=methods[methods!="ZK"]   
             out=R2sample::twosample_test(z$x, z$y, 
                       B=as.numeric(input$B),
-                      nbins=nbins,
-                      discretize=ifelse(input$discretize=="No", FALSE, TRUE), 
+                      nbins=nbins, 
                       maxProcessor=as.numeric(input$maxProcessor),
-                      doMethod=methods)
+                      doMethod=methods)                     
             methods=names(out$statistics)          
             out=cbind(out$statistics, out$p.values)
             colnames(out)=c("Statistics", "p - value")
