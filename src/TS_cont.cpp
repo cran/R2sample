@@ -80,8 +80,6 @@ NumericVector TS_cont(NumericVector x, NumericVector y) {
        }
      }        
   
-  /*        t test  */  
-  
 
   /*  Kolmogorov-Smirnov and Kuiper Tests*/  
     tmp = Fx[0]-Fy[0];

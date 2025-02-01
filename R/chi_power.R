@@ -11,6 +11,10 @@
 
 chi_power = function(rxy, alpha=0.05, B=1000, xparam, yparam, 
                      nbins=c(50, 10), minexpcount=5, typeTS) {
+   if(min(nbins)<3) {
+     message("At least 3 bins/categories are required")
+     return(NULL)
+   }
    dta = rxy(xparam[1], yparam[1])
    if(typeTS<5) Continuous = TRUE
    else Continuous = FALSE

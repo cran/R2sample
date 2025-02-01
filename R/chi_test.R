@@ -8,13 +8,18 @@
 #' @return A list with the test statistics, the p value and the degree of freedom for each test
 
 chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
+  
+  if(min(nbins)<3) {
+     message("At least 3 bins/categories are required")
+    return(NULL)
+  }
   combine.bins = function(x, y, minexpcount=5, maxbins=1000, wx, wy) {
     Weights = ifelse(missing(wx), FALSE, TRUE) 
     nx = sum(x)
     ny = sum(y)
     n = nx+ny
     k = length(x)
-    while ( (min(x+y)<minexpcount) || (k>maxbins) ){
+    while ( (k>3) && ((min(x+y)<minexpcount) || (k>maxbins)) ){
       i = which.min(x+y)
       if(i==1) {
         x = c(x[1]+x[2], x[3:k])
@@ -41,6 +46,7 @@ chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
            }
          }
       }
+      if(length(x)<=3) break
       if(i==k-1) {
          if((x+y)[k-2]<(x+y)[k]) {
             x = c(x[1:(k-3)], x[k-2]+x[k-1], x[k])

@@ -15,7 +15,7 @@ twosample_power(
   minexpcount = 5,
   UseLargeSample,
   samplingmethod = "independence",
-  maxProcessor = 10
+  maxProcessor
 )
 }
 \arguments{
@@ -39,7 +39,7 @@ twosample_power(
 
 \item{samplingmethod}{=independence or MCMC in discrete data case}
 
-\item{maxProcessor}{=10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
+\item{maxProcessor}{maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
 }
 \value{
 A numeric vector of power values.

@@ -65,6 +65,17 @@ bincounter <- function(x, bins) {
     .Call(`_R2sample_bincounter`, x, bins)
 }
 
+#' a local function needed for the vignette
+#' 
+#' @param x An integer vector.
+#' @param y An integer vector.
+#' @param vals A numeric vector with the values of the discrete rv.
+#' @return A vector with test statistics
+#' @export
+myTS2 <- function(x, y, vals) {
+    .Call(`_R2sample_myTS2`, x, y, vals)
+}
+
 #' run permutation test.
 #' 
 #' @param x a numeric vector.

@@ -7,7 +7,7 @@
 #' @return plt, an object of class ggplot.
 #' @export 
 
-plot_power=function(pwr, xname=" ", title, Smooth=TRUE, span=0.25) {
+plot_power=function(pwr, xname=" ", title=" ", Smooth=TRUE, span=0.25) {
 
 # For CRAN CMD check
   x=NULL

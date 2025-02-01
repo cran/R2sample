@@ -1,3 +1,7 @@
+# R2sample 3.0.0
+                Added routine to allow benchmarking of new user
+                supplied tests. Some minor changes to other routines.
+                   
 # R2sample 2.2.0
                 some minor bug fixes, additions to vignette
                 

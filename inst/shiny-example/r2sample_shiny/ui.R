@@ -1,5 +1,5 @@
-allmethods <- list(cont=c("t test", "KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "ZK", "ZC", "Wassp1", "ES large", "ES small", "EP large", "EP small"),
-                   disc= c("t test", "KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "Wassp1", "large", "small"))
+allmethods <- list(cont=c("KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "ZK", "ZC", "Wassp1", "ES large", "ES small", "EP large", "EP small"),
+                   disc= c("KS", "Kuiper", "CvM", "AD",  "LR", "ZA", "Wassp1", "large", "small"))
 
 shinyUI(fluidPage(
   titlePanel("Twosample Tests"),

@@ -9,7 +9,7 @@
 #' @param  minexpcount =5 minimum required count for chi square tests
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
 #' @param  samplingmethod =independence or MCMC in discrete data case
-#' @param  maxProcessor =10, maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
+#' @param  maxProcessor maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
 #' @return A numeric vector of power values.
 #' @export 
 #' @examples
@@ -22,7 +22,7 @@
 
 twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000), 
             nbins=c(50,10), minexpcount=5, UseLargeSample, 
-            samplingmethod="independence", maxProcessor=10) {
+            samplingmethod="independence", maxProcessor) {
        
   samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
 # create function rxy which generates data, with two arguments                       
@@ -160,9 +160,8 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000),
   methodnames=names(tmp)
 
 # Run tests for power
-    m=parallel::detectCores()
-    if(m==1 | maxProcessor==1) { # no parallel processing 
-       if(m==1) message("No multiple cores found, using one core\n") 
+    if(missing(maxProcessor)) maxProcessor=parallel::detectCores()-1
+    if(maxProcessor==1) { # no parallel processing 
        if(Continuous) {
           if(UseLargeSample) 
             pwr=power_cont_LS(rxy, alpha, B[1], avals, bvals)
@@ -175,25 +174,25 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000),
           pwr=power_disc(rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
                 samplingmethod=samplingmethod, B=B, xparam=avals, yparam=bvals)
     }  
-    else { # Use one less processor than is present, or at most maxProcessor
-      m=min(m, maxProcessor+1)-1
-      cl <- parallel::makeCluster(m)
+    else { # Use one less core than is present, or at most maxProcessor
+      cl <- parallel::makeCluster(maxProcessor)
       if(Continuous) {
         if(UseLargeSample) 
           z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
-                    alpha=alpha, B=round(B[1]/m), xparam=avals, yparam=bvals)
+                    alpha=alpha, B=round(B[1]/maxProcessor) , xparam=avals, yparam=bvals)
         else  
            z=parallel::clusterCall(cl, power_cont, rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
-                                   B=c(round(B[1]/m), B[2]), xparam=avals, yparam=bvals)
+                     B=c(round(B[1]/maxProcessor), B[2]), xparam=avals, yparam=bvals)
       }  
       else
         z=parallel::clusterCall(cl, power_disc, rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
-              samplingmethod=samplingmethod, B=c(round(B[1]/m), B[2]), xparam=avals, yparam=bvals)
+              samplingmethod=samplingmethod, B=c(round(B[1]/maxProcessor), B[2]), 
+                                           xparam=avals, yparam=bvals)
       parallel::stopCluster(cl)  
-      # Average power of cores  
+      # Average power over cores  
       pwr=z[[1]]
-      for(i in 2:m) pwr=pwr+z[[i]]
-      pwr = pwr/m
+      for(i in 2:maxProcessor) pwr=pwr+z[[i]]
+      pwr = pwr/maxProcessor
     }
     if(UseLargeSample) 
       colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 

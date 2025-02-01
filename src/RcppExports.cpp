@@ -86,6 +86,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// myTS2
+NumericVector myTS2(IntegerVector x, IntegerVector y, NumericVector vals);
+RcppExport SEXP _R2sample_myTS2(SEXP xSEXP, SEXP ySEXP, SEXP valsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(myTS2(x, y, vals));
+    return rcpp_result_gen;
+END_RCPP
+}
 // perm_test_cont
 List perm_test_cont(NumericVector x, NumericVector y, Function TS, int typeTS, List TSextra, NumericVector wx, NumericVector wy, int B);
 RcppExport SEXP _R2sample_perm_test_cont(SEXP xSEXP, SEXP ySEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP wxSEXP, SEXP wySEXP, SEXP BSEXP) {
@@ -215,6 +228,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_R2sample_TSw_cont", (DL_FUNC) &_R2sample_TSw_cont, 4},
     {"_R2sample_TSw_disc", (DL_FUNC) &_R2sample_TSw_disc, 2},
     {"_R2sample_bincounter", (DL_FUNC) &_R2sample_bincounter, 2},
+    {"_R2sample_myTS2", (DL_FUNC) &_R2sample_myTS2, 3},
     {"_R2sample_perm_test_cont", (DL_FUNC) &_R2sample_perm_test_cont, 8},
     {"_R2sample_perm_test_disc", (DL_FUNC) &_R2sample_perm_test_disc, 8},
     {"_R2sample_permute_disc", (DL_FUNC) &_R2sample_permute_disc, 2},
