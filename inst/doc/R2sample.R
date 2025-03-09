@@ -16,7 +16,7 @@ y1 = rnorm(120)
 twosample_test(x1, y1, B=500, maxProcessor = 2)
 
 ## -----------------------------------------------------------------------------
-twosample_test_adjusted_pvalue(x1, y1, B=c(500,500))
+twosample_test_adjusted_pvalue(x1, y1)
 
 ## -----------------------------------------------------------------------------
 myTS1 = function(x, y) {

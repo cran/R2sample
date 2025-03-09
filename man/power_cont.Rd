@@ -2,21 +2,16 @@
 % Please edit documentation in R/RcppExports.R
 \name{power_cont}
 \alias{power_cont}
-\title{Find the power of various discrete tests via permutation.}
+\title{Find the power of various continuous tests via permutation.}
 \usage{
-power_cont(
-  rxy,
-  TS,
-  typeTS,
-  TSextra,
-  alpha = 0.05,
-  B = as.numeric(c(1000, 1000)),
-  xparam = 0,
-  yparam = 0
-)
+power_cont(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L)
 }
 \arguments{
 \item{rxy}{a function that generates x and y data.}
+
+\item{xparam}{arguments for r1.}
+
+\item{yparam}{arguments for r2.}
 
 \item{TS}{routine to calculate test statistics for non-chi-square tests}
 
@@ -24,18 +19,12 @@ power_cont(
 
 \item{TSextra}{additional info passed to TS, if necessary}
 
-\item{alpha}{A numeric constant}
-
-\item{B}{=c(1000, 1000) number of simulation runs for power and for p values}
-
-\item{xparam}{arguments for r1.}
-
-\item{yparam}{arguments for r2.}
+\item{B}{=1000 number of simulation runs}
 }
 \value{
-A numeric matrix of powers
+A list values of test statistics
 }
 \description{
-Find the power of various discrete tests via permutation.
+Find the power of various continuous tests via permutation.
 }
 \keyword{internal}

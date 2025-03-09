@@ -14,6 +14,7 @@ twosample_test(
   wy = rep(1, length(y)),
   B = 5000,
   nbins = c(50, 10),
+  minexpcount = 5,
   maxProcessor,
   UseLargeSample,
   samplingmethod = "independence",
@@ -38,6 +39,8 @@ twosample_test(
 \item{B}{=5000, number of simulation runs for permutation test}
 
 \item{nbins}{=c(50,10), number of bins for chi square tests.}
+
+\item{minexpcount}{=5, minimum required expected counts for chi-square tests.}
 
 \item{maxProcessor}{maximum number of cores to use. If missing (the default) no parallel processing is used.}
 

@@ -118,37 +118,35 @@ permute_disc <- function(dta, samplingmethod = 1L) {
     .Call(`_R2sample_permute_disc`, dta, samplingmethod)
 }
 
-#' Find the power of various discrete tests via permutation.
+#' Find the power of various continuous tests via permutation.
 #' 
 #' @param rxy a function that generates x and y data.
 #' @param TS routine to calculate test statistics for non-chi-square tests
-#' @param typeTS indicator for type of test statistics
-#' @param TSextra additional info passed to TS, if necessary
-#' @param alpha A numeric constant
-#' @param B =c(1000, 1000) number of simulation runs for power and for p values
 #' @param xparam  arguments for r1.
 #' @param yparam  arguments for r2.
+#' @param typeTS indicator for type of test statistics
+#' @param TSextra additional info passed to TS, if necessary
+#' @param B =1000 number of simulation runs
 #' @keywords internal
-#' @return A numeric matrix of powers
-power_cont <- function(rxy, TS, typeTS, TSextra, alpha = 0.05, B = as.numeric( c(1000, 1000)), xparam = 0.0, yparam = 0.0) {
-    .Call(`_R2sample_power_cont`, rxy, TS, typeTS, TSextra, alpha, B, xparam, yparam)
+#' @return A list values of test statistics
+power_cont <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
+    .Call(`_R2sample_power_cont`, rxy, xparam, yparam, TS, typeTS, TSextra, B)
 }
 
-#' Find the power of various tests via permutation.
+#' Find the power of various continuous tests via permutation.
 #' 
 #' @param rxy a function that generates x and y data.
-#' @param TS routine to calculate test statistics for non-chi-square tests 
-#' @param typeTS indicator for type of test statistics
-#' @param TSextra additional info passed to TS, if necessary
-#' @param alpha A numeric constant
-#' @param samplingmethod =2, 1 for independence sampling, 2 for MCMC in discrete data case
-#' @param B Number of simulation runs.
+#' @param TS routine to calculate test statistics for non-chi-square tests
 #' @param xparam  arguments for r1.
 #' @param yparam  arguments for r2.
+#' @param typeTS indicator for type of test statistics
+#' @param TSextra additional info passed to TS, if necessary
+#' @param samplingmethod =1, 1 for independence sampling, 2 for MCMC
+#' @param B =1000 number of simulation runs
 #' @keywords internal
-#' @return A numeric matrix of powers
-power_disc <- function(rxy, TS, typeTS, TSextra, alpha = 0.05, samplingmethod = 2L, B = as.numeric( c(1000, 2000)), xparam = 0.0, yparam = 0.0) {
-    .Call(`_R2sample_power_disc`, rxy, TS, typeTS, TSextra, alpha, samplingmethod, B, xparam, yparam)
+#' @return A list values of test statistics
+power_disc <- function(rxy, xparam, yparam, TS, typeTS, TSextra, samplingmethod = 1L, B = 1000L) {
+    .Call(`_R2sample_power_disc`, rxy, xparam, yparam, TS, typeTS, TSextra, samplingmethod, B)
 }
 
 #' cpp version of R routine rep

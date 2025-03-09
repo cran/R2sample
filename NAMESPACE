@@ -2,8 +2,11 @@
 
 export(myTS2)
 export(plot_power)
+export(power_cont_R)
+export(power_disc_R)
 export(run.studies)
 export(run_shiny)
+export(timecheck)
 export(twosample_power)
 export(twosample_test)
 export(twosample_test_adjusted_pvalue)

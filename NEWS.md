@@ -1,3 +1,5 @@
+# R2sample 3.1.0
+                Improved the routines that do power calculations 
 # R2sample 3.0.0
                 Added routine to allow benchmarking of new user
                 supplied tests. Some minor changes to other routines.

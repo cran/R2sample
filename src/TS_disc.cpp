@@ -28,7 +28,6 @@ NumericVector TS_disc(IntegerVector x,
   TS.names() = methods;
 
   /*  sample sizes*/  
-  
   nx=0;
   ny=0;
   for(i=0;i<k;++i) {
@@ -87,14 +86,12 @@ NumericVector TS_disc(IntegerVector x,
      
   /* Cramer-vonMises and Anderson-Darling test*/
    
-
      Fx(0)=x(0)/double(nx);
      Fy(0)=y(0)/double(ny);
      for(i=1;i<k;++i) {
         Fx(i)=Fx(i-1)+x(i)/double(nx);
         Fy(i)=Fy(i-1)+y(i)/double(ny);         
      } 
-     
      TS(2)=0.0;
      for(i=0;i<k;++i) {
           tmp=Fx(i)-Fy(i);     
@@ -108,8 +105,8 @@ NumericVector TS_disc(IntegerVector x,
           TS(3)=TS(3)+ADweights(i)*tmp*tmp;
       }
       TS(3)=TS(3)*nx*ny; 
- 
-  /*    Lehmann-Rosenblatt test*/   
+
+/*    Lehmann-Rosenblatt test*/   
    
   
 

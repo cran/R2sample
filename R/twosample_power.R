@@ -4,7 +4,7 @@
 #' @param  TS routine to calculate test statistics for non-chi-square tests
 #' @param  TSextra additional info passed to TS, if necessary
 #' @param  alpha =0.05, the level of the hypothesis test 
-#' @param  B =c(1000, 2000), number of simulation runs for power and permutation test.
+#' @param  B =1000, number of simulation runs.
 #' @param  nbins =c(50,10), number of bins for chi large and chi small.
 #' @param  minexpcount =5 minimum required count for chi square tests
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
@@ -14,16 +14,16 @@
 #' @export 
 #' @examples
 #'  f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
-#'  twosample_power(f, mu=c(0,2), B=c(100, 100), maxProcessor = 1)
+#'  twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
 #'  f=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
 #'        y=table(sample(1:5, size=n, replace=TRUE, 
 #'        prob=c(1, 1, 1, 1, p))), vals=1:5)
-#'  twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=c(100, 100), maxProcessor = 1)
+#'  twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
 
-twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000), 
+twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000, 
             nbins=c(50,10), minexpcount=5, UseLargeSample, 
             samplingmethod="independence", maxProcessor) {
-       
+
   samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
 # create function rxy which generates data, with two arguments                       
     if(length(list(...))==0) { # f has 0 arguments
@@ -65,6 +65,10 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000),
   x=tmp$x
   y=tmp$y
   Continuous = ifelse("vals" %in% names(tmp), FALSE, TRUE)
+  if(!Continuous & missing(maxProcessor)) {
+     maxProcessor=1
+     message("For discrete data only a single processor is used if maxProcessor is not specified")
+  }
   Weights=FALSE
   if(Continuous & length(tmp)==4) {
     Weights=TRUE
@@ -160,40 +164,36 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=c(1000, 1000),
   methodnames=names(tmp)
 
 # Run tests for power
-    if(missing(maxProcessor)) maxProcessor=parallel::detectCores()-1
-    if(maxProcessor==1) { # no parallel processing 
-       if(Continuous) {
-          if(UseLargeSample) 
-            pwr=power_cont_LS(rxy, alpha, B[1], avals, bvals)
-          else                  
-            pwr=power_cont(rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, B=B, 
-                xparam=avals, yparam=bvals)
-          
-       }    
-       else
-          pwr=power_disc(rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
-                samplingmethod=samplingmethod, B=B, xparam=avals, yparam=bvals)
+    if(missing(maxProcessor) & Continuous) {
+       maxProcessor=max(1, parallel::detectCores(logical = FALSE)-1)
+       message(paste("Parallel Programing with ", maxProcessor, " physical cores"))  
+    }   
+    if(Continuous) {
+        if(UseLargeSample) {
+           if(maxProcessor==1) { # no parallel processing 
+               pwr=power_cont_LS(rxy, alpha, B[1], avals, bvals)
+           }
+           else {
+              cl <- parallel::makeCluster(maxProcessor)
+              z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
+                  alpha=alpha, B=round(B/maxProcessor) , xparam=avals, yparam=bvals)
+              parallel::stopCluster(cl)  
+              # Average power over cores  
+              pwr=z[[1]]
+              for(i in 2:maxProcessor) pwr=pwr+z[[i]]
+              pwr = pwr/maxProcessor
+           }
+        }    
+        else  pwr=power_cont_R(rxy=rxy, xparam=avals, yparam=bvals, 
+                             TS=TS, typeTS, TSextra, alpha=alpha, 
+                             B=B,maxProcessor=maxProcessor)
+    }    
+    else {
+      pwr=power_disc_R(rxy=rxy, xparam=avals, yparam=bvals, 
+                        TS=TS, typeTS, TSextra, alpha=alpha, 
+                        samplingmethod=samplingmethod, B=B, 
+                        maxProcessor=maxProcessor)
     }  
-    else { # Use one less core than is present, or at most maxProcessor
-      cl <- parallel::makeCluster(maxProcessor)
-      if(Continuous) {
-        if(UseLargeSample) 
-          z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
-                    alpha=alpha, B=round(B[1]/maxProcessor) , xparam=avals, yparam=bvals)
-        else  
-           z=parallel::clusterCall(cl, power_cont, rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
-                     B=c(round(B[1]/maxProcessor), B[2]), xparam=avals, yparam=bvals)
-      }  
-      else
-        z=parallel::clusterCall(cl, power_disc, rxy=rxy, TS=TS, typeTS, TSextra, alpha=alpha, 
-              samplingmethod=samplingmethod, B=c(round(B[1]/maxProcessor), B[2]), 
-                                           xparam=avals, yparam=bvals)
-      parallel::stopCluster(cl)  
-      # Average power over cores  
-      pwr=z[[1]]
-      for(i in 2:maxProcessor) pwr=pwr+z[[i]]
-      pwr = pwr/maxProcessor
-    }
     if(UseLargeSample) 
       colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 
                         "ES large", "ES small" , "EP large", "EP small")

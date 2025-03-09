@@ -14,7 +14,7 @@ run.studies(
   alpha = 0.05,
   param_alt,
   maxProcessor,
-  B = c(1000, 1000)
+  B = 1000
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ run.studies(
 
 \item{maxProcessor}{number of cores to use for parallel programming}
 
-\item{B}{= c(1000,1000)}
+\item{B}{= 1000}
 }
 \value{
 A (list of ) matrices of p.values
@@ -61,5 +61,5 @@ chitest = function(x, y, TSextra) {
    out
 }
 TSextra=list(nbins=5,statistic=FALSE) # Use 5 bins and calculate p values
-run.studies(chitest,TSextra=TSextra, With.p.value=TRUE, B=c(100, 100))
+run.studies(chitest,TSextra=TSextra, With.p.value=TRUE, B=100)
 }

@@ -14,6 +14,7 @@ twosample_test_adjusted_pvalue(
   wy = rep(1, length(y)),
   B = c(5000, 1000),
   nbins = c(50, 10),
+  minexpcount = 5,
   samplingmethod = "independence",
   doMethods
 )
@@ -36,6 +37,8 @@ twosample_test_adjusted_pvalue(
 \item{B}{=c(5000, 1000), number of simulation runs for permutation test}
 
 \item{nbins}{=c(50,10), number of bins for chi square tests.}
+
+\item{minexpcount}{= 5, minimum required expected counts for chi-square tests}
 
 \item{samplingmethod}{="independence" or "MCMC" for discrete data}
 

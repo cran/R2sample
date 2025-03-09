@@ -10,7 +10,7 @@ twosample_power(
   TS,
   TSextra,
   alpha = 0.05,
-  B = c(1000, 1000),
+  B = 1000,
   nbins = c(50, 10),
   minexpcount = 5,
   UseLargeSample,
@@ -29,7 +29,7 @@ twosample_power(
 
 \item{alpha}{=0.05, the level of the hypothesis test}
 
-\item{B}{=c(1000, 2000), number of simulation runs for power and permutation test.}
+\item{B}{=1000, number of simulation runs.}
 
 \item{nbins}{=c(50,10), number of bins for chi large and chi small.}
 
@@ -49,9 +49,9 @@ Find the power of various two sample tests using Rcpp and parallel computing.
 }
 \examples{
  f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
- twosample_power(f, mu=c(0,2), B=c(100, 100), maxProcessor = 1)
+ twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
  f=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
        y=table(sample(1:5, size=n, replace=TRUE, 
        prob=c(1, 1, 1, 1, p))), vals=1:5)
- twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=c(100, 100), maxProcessor = 1)
+ twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
 }

@@ -148,39 +148,37 @@ BEGIN_RCPP
 END_RCPP
 }
 // power_cont
-NumericMatrix power_cont(Function rxy, Function TS, int typeTS, List TSextra, double alpha, NumericVector B, NumericVector xparam, NumericVector yparam);
-RcppExport SEXP _R2sample_power_cont(SEXP rxySEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP alphaSEXP, SEXP BSEXP, SEXP xparamSEXP, SEXP yparamSEXP) {
+List power_cont(Function rxy, NumericVector xparam, NumericVector yparam, Function TS, int typeTS, List TSextra, int B);
+RcppExport SEXP _R2sample_power_cont(SEXP rxySEXP, SEXP xparamSEXP, SEXP yparamSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Function >::type rxy(rxySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type xparam(xparamSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type yparam(yparamSEXP);
     Rcpp::traits::input_parameter< Function >::type TS(TSSEXP);
     Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
     Rcpp::traits::input_parameter< List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type B(BSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type xparam(xparamSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type yparam(yparamSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_cont(rxy, TS, typeTS, TSextra, alpha, B, xparam, yparam));
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(power_cont(rxy, xparam, yparam, TS, typeTS, TSextra, B));
     return rcpp_result_gen;
 END_RCPP
 }
 // power_disc
-NumericMatrix power_disc(Function rxy, Function TS, int typeTS, List TSextra, double alpha, int samplingmethod, NumericVector B, NumericVector xparam, NumericVector yparam);
-RcppExport SEXP _R2sample_power_disc(SEXP rxySEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP alphaSEXP, SEXP samplingmethodSEXP, SEXP BSEXP, SEXP xparamSEXP, SEXP yparamSEXP) {
+List power_disc(Function rxy, NumericVector xparam, NumericVector yparam, Function TS, int typeTS, List TSextra, int samplingmethod, int B);
+RcppExport SEXP _R2sample_power_disc(SEXP rxySEXP, SEXP xparamSEXP, SEXP yparamSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP samplingmethodSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Function >::type rxy(rxySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type xparam(xparamSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type yparam(yparamSEXP);
     Rcpp::traits::input_parameter< Function >::type TS(TSSEXP);
     Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
     Rcpp::traits::input_parameter< List >::type TSextra(TSextraSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< int >::type samplingmethod(samplingmethodSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type B(BSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type xparam(xparamSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type yparam(yparamSEXP);
-    rcpp_result_gen = Rcpp::wrap(power_disc(rxy, TS, typeTS, TSextra, alpha, samplingmethod, B, xparam, yparam));
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(power_disc(rxy, xparam, yparam, TS, typeTS, TSextra, samplingmethod, B));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -232,8 +230,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_R2sample_perm_test_cont", (DL_FUNC) &_R2sample_perm_test_cont, 8},
     {"_R2sample_perm_test_disc", (DL_FUNC) &_R2sample_perm_test_disc, 8},
     {"_R2sample_permute_disc", (DL_FUNC) &_R2sample_permute_disc, 2},
-    {"_R2sample_power_cont", (DL_FUNC) &_R2sample_power_cont, 8},
-    {"_R2sample_power_disc", (DL_FUNC) &_R2sample_power_disc, 9},
+    {"_R2sample_power_cont", (DL_FUNC) &_R2sample_power_cont, 7},
+    {"_R2sample_power_disc", (DL_FUNC) &_R2sample_power_disc, 8},
     {"_R2sample_repC", (DL_FUNC) &_R2sample_repC, 2},
     {"_R2sample_wbincounter", (DL_FUNC) &_R2sample_wbincounter, 3},
     {"_R2sample_weights", (DL_FUNC) &_R2sample_weights, 1},

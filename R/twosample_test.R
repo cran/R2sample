@@ -8,6 +8,7 @@
 #' @param  wy A numeric vector of weights of y.
 #' @param  B =5000, number of simulation runs for permutation test
 #' @param  nbins =c(50,10), number of bins for chi square tests.
+#' @param  minexpcount =5, minimum required expected counts for chi-square tests.
 #' @param  maxProcessor maximum number of cores to use. If missing (the default) no parallel processing is used.
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
 #' @param  samplingmethod ="independence" or "MCMC" for discrete data
@@ -25,7 +26,7 @@
 
 twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
                         wy=rep(1, length(y)), B=5000, nbins=c(50,10),
-                        maxProcessor,  UseLargeSample, 
+                        minexpcount=5, maxProcessor,  UseLargeSample, 
                         samplingmethod="independence", doMethods="all") {
     default.methods = list(cont=c("EP small", "ZA", "ZK", "Wassp1"), 
                            disc=c("small", "ZA", "Kuiper", "Wassp1"))
@@ -43,13 +44,13 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
       CustomTS=FALSE
       if(Continuous) {
           if(all( abs(c(wx,wy)-round(c(wx,wy)))<1e-10 )) { # No weights
-             outchi = chi_test(list(x=x, y=y), nbins, 5, typeTS=1)
+             outchi = chi_test(list(x=x, y=y), nbins, minexpcount, typeTS=1)
              typeTS = 1
              TS=TS_cont
              tmp=TS(x,y)
           }
           else { # weighted data
-            outchi = chi_test(list(x=x, y=y, wx=wx, wy=wy), nbins, 5, typeTS=2)
+            outchi = chi_test(list(x=x, y=y, wx=wx, wy=wy), nbins, minexpcount, typeTS=2)
             typeTS = 2
             TS=TSw_cont
             tmp=TS(x, y, wx, wy)
@@ -65,7 +66,7 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
             TS=TS_disc
             tmp=TS(x, y, vals, rep(1, length(x)))
             dta=list(x=x, y=y, vals=vals)
-            outchi = chi_test(dta, nbins, 5, typeTS=5)        
+            outchi = chi_test(dta, nbins, minexpcount, typeTS=5)        
           }
           else {
             typeTS=6
@@ -76,7 +77,7 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
             }
             else {
                dta=list(x=x, y=y, vals=vals, TSextra=TSextra)
-               outchi = chi_test(dta, nbins, 5, typeTS=6)        
+               outchi = chi_test(dta, nbins, minexpcount, typeTS=6)        
                
             }  
             doMethods=c("KS", "Kuiper", "CvM", "AD")
@@ -119,7 +120,7 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
     }
 
 #  set number of processors for parallel programming
-    m=parallel::detectCores()  
+    m=parallel::detectCores(logical = FALSE) 
     if(maxProcessor>1) maxProcessor=min(maxProcessor, m-1)
     
 # Check whether continuous data has many ties

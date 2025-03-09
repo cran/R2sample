@@ -8,6 +8,7 @@
 #' @param  wy A numeric vector of weights of y.
 #' @param  B =c(5000, 1000), number of simulation runs for permutation test
 #' @param  nbins =c(50,10), number of bins for chi square tests.
+#' @param  minexpcount = 5, minimum required expected counts for chi-square tests
 #' @param  samplingmethod ="independence" or "MCMC" for discrete data
 #' @param  doMethods  Which methods should be included? 
 #' @return A list of two numeric vectors, the test statistics and the p values. 
@@ -23,7 +24,7 @@
 
 twosample_test_adjusted_pvalue=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
                         wy=rep(1, length(y)), B=c(5000, 1000), nbins=c(50,10),
-                        samplingmethod="independence", doMethods) {
+                        minexpcount=5, samplingmethod="independence", doMethods) {
     default.methods = list(cont=c("ES small", "ZA", "ZK", "Wassp1","Kuiper"), 
                            disc=c("small", "ZA", "Kuiper", "Wassp1"))
     all.methods = list(cont=c("KS","Kuiper","CvM","AD","LR","ZA","ZK","ZC","Wassp1",
@@ -165,7 +166,7 @@ twosample_test_adjusted_pvalue=function(x, y, vals=NA, TS, TSextra, wx=rep(1, le
                if(i==1) dta=list(x=x,y=y)
                else dta=list(x=xy[I[1:n]], y=xy[I[(n+1):(n+m)]])
             }   
-            pvalsCHI[i, ]=chi_test(dta, nbins=nbins, typeTS=typeTS)$p.values
+            pvalsCHI[i, ]=chi_test(dta, nbins=nbins, minexpcount=minexpcount, typeTS=typeTS)$p.values
          }
          else pvalsCHI=NULL
     }

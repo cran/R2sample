@@ -8,7 +8,7 @@
 #' @param alpha =0.05  type I error
 #' @param param_alt (list of) values of parameter under the alternative hypothesis. If missing included values are used.
 #' @param maxProcessor number of cores to use for parallel programming
-#' @param B = c(1000,1000)
+#' @param B = 1000
 #' @return A (list of ) matrices of p.values
 #' @examples
 #' #The new test is a simple chisquare test:
@@ -27,11 +27,11 @@
 #'    out
 #' }
 #' TSextra=list(nbins=5,statistic=FALSE) # Use 5 bins and calculate p values
-#' run.studies(chitest,TSextra=TSextra, With.p.value=TRUE, B=c(100, 100))
+#' run.studies(chitest,TSextra=TSextra, With.p.value=TRUE, B=100)
 #' @export
 
 run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=TRUE, 
-          nsample=500, alpha=0.05, param_alt, maxProcessor, B=c(1000,1000)) {
+          nsample=500, alpha=0.05, param_alt, maxProcessor, B=1000) {
 
   if(!is.function(TS)) {
       if(missing(TS) || !is.logical(TS)) {
@@ -45,7 +45,8 @@ run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=
   I80disc=c(16, 12, 12, 14, 10, 10, 12, 11, 21, 5, 6, 12, 10, 11, 17, 16, 13, 18, 12, 13)
   if(Continuous) I80=I80cont
   else I80=I80disc
-  if(missing(maxProcessor)) maxProcessor=parallel::detectCores()-1
+  if(missing(maxProcessor)) 
+    maxProcessor=parallel::detectCores(logical = FALSE)-1
   NewParams=ifelse(alpha==0.05, FALSE, TRUE)
   if(!missing(param_alt)) {
       NewParams=TRUE

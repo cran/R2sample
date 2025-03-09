@@ -2,22 +2,25 @@
 % Please edit documentation in R/RcppExports.R
 \name{power_disc}
 \alias{power_disc}
-\title{Find the power of various tests via permutation.}
+\title{Find the power of various continuous tests via permutation.}
 \usage{
 power_disc(
   rxy,
+  xparam,
+  yparam,
   TS,
   typeTS,
   TSextra,
-  alpha = 0.05,
-  samplingmethod = 2L,
-  B = as.numeric(c(1000, 2000)),
-  xparam = 0,
-  yparam = 0
+  samplingmethod = 1L,
+  B = 1000L
 )
 }
 \arguments{
 \item{rxy}{a function that generates x and y data.}
+
+\item{xparam}{arguments for r1.}
+
+\item{yparam}{arguments for r2.}
 
 \item{TS}{routine to calculate test statistics for non-chi-square tests}
 
@@ -25,20 +28,14 @@ power_disc(
 
 \item{TSextra}{additional info passed to TS, if necessary}
 
-\item{alpha}{A numeric constant}
+\item{samplingmethod}{=1, 1 for independence sampling, 2 for MCMC}
 
-\item{samplingmethod}{=2, 1 for independence sampling, 2 for MCMC in discrete data case}
-
-\item{B}{Number of simulation runs.}
-
-\item{xparam}{arguments for r1.}
-
-\item{yparam}{arguments for r2.}
+\item{B}{=1000 number of simulation runs}
 }
 \value{
-A numeric matrix of powers
+A list values of test statistics
 }
 \description{
-Find the power of various tests via permutation.
+Find the power of various continuous tests via permutation.
 }
 \keyword{internal}

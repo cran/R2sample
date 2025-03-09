@@ -1,6 +1,6 @@
 Package: R2sample
 Title: Various Methods for the Two Sample Problem
-Version: 3.0.0
+Version: 3.1.0
 Authors@R: 
     person("Wolfgang", "Rolke", , "wolfgang.rolke@upr.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3514-726X"))
@@ -14,14 +14,15 @@ License: GPL (>= 2)
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 LinkingTo: Rcpp
-Imports: Rcpp, parallel, shiny, ggplot2, stats, graphics
-Suggests: rmarkdown, knitr
+Imports: Rcpp, parallel, shiny, ggplot2, stats, graphics,
+        microbenchmark
+Suggests: rmarkdown, knitr, testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2025-02-01 20:01:28 UTC; Wolfgang
+Packaged: 2025-03-09 11:09:34 UTC; Wolfgang
 Author: Wolfgang Rolke [aut, cre] (<https://orcid.org/0000-0002-3514-726X>)
 Maintainer: Wolfgang Rolke <wolfgang.rolke@upr.edu>
 Repository: CRAN
-Date/Publication: 2025-02-01 20:20:05 UTC
+Date/Publication: 2025-03-09 11:20:02 UTC
