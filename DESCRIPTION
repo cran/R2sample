@@ -1,6 +1,6 @@
 Package: R2sample
 Title: Various Methods for the Two Sample Problem
-Version: 3.1.0
+Version: 3.1.1
 Authors@R: 
     person("Wolfgang", "Rolke", , "wolfgang.rolke@upr.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-3514-726X"))
@@ -21,8 +21,8 @@ VignetteBuilder: knitr
 Depends: R (>= 3.5)
 LazyData: true
 NeedsCompilation: yes
-Packaged: 2025-03-09 11:09:34 UTC; Wolfgang
+Packaged: 2025-03-16 18:49:17 UTC; Wolfgang
 Author: Wolfgang Rolke [aut, cre] (<https://orcid.org/0000-0002-3514-726X>)
 Maintainer: Wolfgang Rolke <wolfgang.rolke@upr.edu>
 Repository: CRAN
-Date/Publication: 2025-03-09 11:20:02 UTC
+Date/Publication: 2025-03-16 19:10:02 UTC

@@ -52,6 +52,7 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
           else { # weighted data
             outchi = chi_test(list(x=x, y=y, wx=wx, wy=wy), nbins, minexpcount, typeTS=2)
             typeTS = 2
+            TSextra=c(TSextra, wx=wx, wy=wy)
             TS=TSw_cont
             tmp=TS(x, y, wx, wy)
             doMethods=c("KS", "Kuiper", "CvM", "AD", names(outchi[[1]]))
@@ -64,8 +65,9 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
           if(all( abs(c(x,y)-round(c(x,y)))<1e-10 )) { # no weights
             typeTS=5
             TS=TS_disc
-            tmp=TS(x, y, vals, rep(1, length(x)))
             dta=list(x=x, y=y, vals=vals)
+            TSextra=list(adw=weights(dta))
+            tmp=TS(x, y, vals, TSextra$adw)
             outchi = chi_test(dta, nbins, minexpcount, typeTS=5)        
           }
           else {

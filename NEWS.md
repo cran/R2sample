@@ -1,5 +1,10 @@
+# R2sample 3.1.1
+                Fixed a minor bug
 # R2sample 3.1.0
-                Improved the routines that do power calculations 
+                Improved the routines that do power calculations for better speed. 
+                Included a timing routine to see whether using a single core is 
+                faster than using multiple processing.
+                Some minor changes to other routines.
 # R2sample 3.0.0
                 Added routine to allow benchmarking of new user
                 supplied tests. Some minor changes to other routines.

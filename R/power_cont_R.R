@@ -23,8 +23,11 @@ power_cont_R=function(rxy, xparam, yparam,
    rownames(pwr)=xparam
    if(maxProcessor>1) {
       tm=timecheck(dta, TS, typeTS, TSextra)
-      if(tm*length(xparam)*2*B<20) maxProcessor=1
-      message("maxProcessor set to 1 for faster computation")
+      if(tm*length(xparam)*2*B<20) {
+        maxProcessor=1
+        message("maxProcessor set to 1 for faster computation")
+      }
+      else message(paste("Using ",maxProcessor," cores.."))  
    }
    if(maxProcessor>1) cl <- parallel::makeCluster(maxProcessor)
    if(maxProcessor==1) { # no parallel processing 

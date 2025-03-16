@@ -1,6 +1,7 @@
 #include <Rcpp.h>
 #include "weights.h"
 #include "permute_disc.h"
+#include "teststatistics.h"
 using namespace Rcpp;
 
 //' Find the power of various continuous tests via permutation.
@@ -26,19 +27,10 @@ List power_disc(Function rxy,
                 int B=1000) { 
 /* Find out how many tests are to be done, sample sizes etc. */  
   List dta=rxy(xparam(0),yparam(0));
-  IntegerVector x = as<IntegerVector>(dta["x"]);
-  IntegerVector y = as<IntegerVector>(dta["y"]);
-  NumericVector vals = as<NumericVector>(dta["vals"]);
-  NumericVector adw;
   int nl=xparam.size();
   NumericVector TS_data;
-  if(typeTS==5) {
-    adw=weights(dta);
-    TS_data=TS(x, y, vals, adw);
-  }  
-  if(typeTS==6) TS_data=TS(x, y);
-  if(typeTS==7) TS_data=TS(x, y, vals);
-  if(typeTS==8) TS_data=TS(x, y, vals, TSextra);
+  if(typeTS==5) TSextra["adw"]=weights(dta);
+  TS_data = calcTS(dta, TS, typeTS, TSextra);
   int const nummethods=TS_data.size();
   int j, m, l, cn=-1;
   NumericMatrix realdta(B*nl, 1+nummethods), permdta(B*nl, 1+nummethods);
@@ -51,17 +43,9 @@ List power_disc(Function rxy,
       ++cn;
 /*  create new data set  */            
       dta=rxy(xparam(l),yparam(l));
-      x = as<IntegerVector>(dta["x"]);
-      y = as<IntegerVector>(dta["y"]);
-      vals = as<NumericVector>(dta["vals"]);
 /*  find test statistics for data  */
-      if(typeTS==5) {
-        adw=weights(dta);
-        TS_data=TS(x, y,vals,adw);
-      }  
-      if(typeTS==6) TS_data=TS(x, y);
-      if(typeTS==7) TS_data=TS(x, y, vals);
-      if(typeTS==8) TS_data=TS(x, y, vals, TSextra);
+      if(typeTS==5) TSextra["adw"]=weights(dta);
+      TS_data = calcTS(dta, TS, typeTS, TSextra);
       realdta(cn,0)=xparam(l);
       for(j=0;j<nummethods;++j) realdta(cn,j+1)=TS_data(j);
 
@@ -69,10 +53,7 @@ List power_disc(Function rxy,
       GetRNGstate();
       dta=permute_disc(dta, samplingmethod);
       PutRNGstate();
-      if(typeTS==5) TS_perm=TS(dta["x"], dta["y"], vals, adw);
-      if(typeTS==6) TS_perm=TS(dta["x"], dta["y"]);     
-      if(typeTS==7) TS_perm=TS(dta["x"], dta["y"], vals);
-      if(typeTS==8) TS_perm=TS(dta["x"], dta["y"], vals, TSextra);
+      TS_perm = calcTS(dta, TS, typeTS, TSextra);
       permdta(cn,0)=xparam(l);
       for(j=0;j<nummethods;++j) permdta(cn,j+1)=TS_perm(j);
     }  

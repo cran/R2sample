@@ -1,6 +1,6 @@
 #include <Rcpp.h>
-#include "weights.h"
 #include "permute_disc.h"
+#include "teststatistics.h"
 using namespace Rcpp;
 
 //' run permutation test.
@@ -16,8 +16,8 @@ using namespace Rcpp;
 //' @keywords internal
 //' @return A list with test statistics and p values
 // [[Rcpp::export]]
-List perm_test_disc(NumericVector x, 
-                   NumericVector y, 
+List perm_test_disc(IntegerVector x, 
+                   IntegerVector y, 
                    NumericVector vals,
                    Function TS, 
                    int typeTS,
@@ -27,25 +27,21 @@ List perm_test_disc(NumericVector x,
   
   int i, j;   
 /* find out what methods should be run */  
-  List dta=List::create(Named("x") = x, Named("y") = y, Named("vals")=vals); 
-  NumericVector data_TS, perm_TS,  adw;
-  if(typeTS==5) {
-    adw=weights(dta);
-    data_TS=TS(x, y, vals, adw); 
-  }    
-  if(typeTS==6)  data_TS=TS(x, y);  
-  if(typeTS==7)  data_TS=TS(x, y, vals);  
-  if(typeTS==8)  data_TS=TS(x, y, vals, TSextra); 
-  int const nummethods=data_TS.size();
+  NumericVector TS_data, TS_perm;
+  List dta=List::create(Named("x") = x, 
+                        Named("y") = y, 
+                        Named("vals")=vals);
+  TS_data = calcTS(dta, TS, typeTS, TSextra);
+  int const nummethods=TS_data.size();
   NumericVector pvals(nummethods), stats(nummethods);
-  CharacterVector TSmethods=data_TS.names();
+  CharacterVector TSmethods=TS_data.names();
   stats.names() = TSmethods; 
   pvals.names() = TSmethods;  
 
   /*  Find weights and test statistics for data */      
 
   for(i=0;i<nummethods;++i) {
-    stats(i)=data_TS(i);  
+    stats(i)=TS_data(i);  
     pvals(i)=0.0;  
   }
     
@@ -58,13 +54,10 @@ List perm_test_disc(NumericVector x,
      GetRNGstate();
      dta=permute_disc(dta, samplingmethod);
      PutRNGstate();
-     if(typeTS==5) perm_TS=TS(dta["x"], dta["y"], vals, adw);
-     if(typeTS==6) perm_TS=TS(dta["x"], dta["y"]);     
-     if(typeTS==7) perm_TS=TS(dta["x"], dta["y"], vals);
-     if(typeTS==8) perm_TS=TS(dta["x"], dta["y"], vals, TSextra);
+     TS_perm = calcTS(dta, TS, typeTS, TSextra);
    /*  p value */
      for(i=0;i<nummethods;++i) {
-         if(data_TS(i)<perm_TS(i)) pvals(i)=pvals(i)+1.0;
+         if(TS_data(i)<TS_perm(i)) pvals(i)=pvals(i)+1.0;
      }
   }
 

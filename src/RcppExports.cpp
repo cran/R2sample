@@ -118,13 +118,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // perm_test_disc
-List perm_test_disc(NumericVector x, NumericVector y, NumericVector vals, Function TS, int typeTS, List TSextra, int samplingmethod, int B);
+List perm_test_disc(IntegerVector x, IntegerVector y, NumericVector vals, Function TS, int typeTS, List TSextra, int samplingmethod, int B);
 RcppExport SEXP _R2sample_perm_test_disc(SEXP xSEXP, SEXP ySEXP, SEXP valsSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP, SEXP samplingmethodSEXP, SEXP BSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y(ySEXP);
     Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
     Rcpp::traits::input_parameter< Function >::type TS(TSSEXP);
     Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
@@ -194,6 +194,54 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// calcTS
+NumericVector calcTS(Rcpp::List dta, Rcpp::Function TS, int typeTS, Rcpp::List TSextra);
+RcppExport SEXP _R2sample_calcTS(SEXP dtaSEXP, SEXP TSSEXP, SEXP typeTSSEXP, SEXP TSextraSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type dta(dtaSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
+    rcpp_result_gen = Rcpp::wrap(calcTS(dta, TS, typeTS, TSextra));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ts_C
+NumericVector ts_C(int typeTS, Rcpp::NumericVector x, Rcpp::NumericVector y, Rcpp::Function TS, Rcpp::List TSextra, Rcpp::NumericVector wx, Rcpp::NumericVector wy);
+RcppExport SEXP _R2sample_ts_C(SEXP typeTSSEXP, SEXP xSEXP, SEXP ySEXP, SEXP TSSEXP, SEXP TSextraSEXP, SEXP wxSEXP, SEXP wySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type wx(wxSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type wy(wySEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_C(typeTS, x, y, TS, TSextra, wx, wy));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ts_D
+NumericVector ts_D(int typeTS, Rcpp::IntegerVector x, Rcpp::IntegerVector y, Rcpp::NumericVector vals, Rcpp::Function TS, Rcpp::List TSextra, Rcpp::NumericVector adw);
+RcppExport SEXP _R2sample_ts_D(SEXP typeTSSEXP, SEXP xSEXP, SEXP ySEXP, SEXP valsSEXP, SEXP TSSEXP, SEXP TSextraSEXP, SEXP adwSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type typeTS(typeTSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type vals(valsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Function >::type TS(TSSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type TSextra(TSextraSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type adw(adwSEXP);
+    rcpp_result_gen = Rcpp::wrap(ts_D(typeTS, x, y, vals, TS, TSextra, adw));
+    return rcpp_result_gen;
+END_RCPP
+}
 // wbincounter
 Rcpp::NumericMatrix wbincounter(std::vector<double>& x, std::vector<double>& bins, std::vector<double>& w);
 RcppExport SEXP _R2sample_wbincounter(SEXP xSEXP, SEXP binsSEXP, SEXP wSEXP) {
@@ -233,6 +281,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_R2sample_power_cont", (DL_FUNC) &_R2sample_power_cont, 7},
     {"_R2sample_power_disc", (DL_FUNC) &_R2sample_power_disc, 8},
     {"_R2sample_repC", (DL_FUNC) &_R2sample_repC, 2},
+    {"_R2sample_calcTS", (DL_FUNC) &_R2sample_calcTS, 4},
+    {"_R2sample_ts_C", (DL_FUNC) &_R2sample_ts_C, 7},
+    {"_R2sample_ts_D", (DL_FUNC) &_R2sample_ts_D, 7},
     {"_R2sample_wbincounter", (DL_FUNC) &_R2sample_wbincounter, 3},
     {"_R2sample_weights", (DL_FUNC) &_R2sample_weights, 1},
     {NULL, NULL, 0}

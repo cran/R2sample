@@ -159,6 +159,45 @@ repC <- function(x, times) {
     .Call(`_R2sample_repC`, x, times)
 }
 
+#' This function calculates the test statistics for continuous data
+#' @param  dta data set
+#' @param  TS routine
+#' @param  typeTS format of TS
+#' @param  TSextra list passed to TS function
+#' @keywords internal
+#' @return A vector of numbers
+calcTS <- function(dta, TS, typeTS, TSextra) {
+    .Call(`_R2sample_calcTS`, dta, TS, typeTS, TSextra)
+}
+
+#' This function calculates the test statistics for continuous data
+#' @param  typeTS format of TS
+#' @param  x continuous data set
+#' @param  y continuous data set
+#' @param  TS routine
+#' @param  wx weights for x
+#' @param  wy weights for y
+#' @param  TSextra list passed to TS function
+#' @keywords internal
+#' @return A vector of numbers
+ts_C <- function(typeTS, x, y, TS, TSextra, wx, wy) {
+    .Call(`_R2sample_ts_C`, typeTS, x, y, TS, TSextra, wx, wy)
+}
+
+#' This function calculates the test statistics for discrete data
+#' @param  typeTS format of TS
+#' @param  x discrete data set (counts)
+#' @param  y discrete data set (counts)
+#' @param  vals values of discrete RV
+#' @param  TS routine 
+#' @param  TSextra list passed to TS function
+#' @param  adw vector of weights for Anderson-Darling test
+#' @keywords internal
+#' @return A vector of numbers
+ts_D <- function(typeTS, x, y, vals, TS, TSextra, adw) {
+    .Call(`_R2sample_ts_D`, typeTS, x, y, vals, TS, TSextra, adw)
+}
+
 #' Find counts and/or sum of weights in bins. Useful for power calculations. Replaces hist command from R.
 #' 
 #' @param x numeric vector

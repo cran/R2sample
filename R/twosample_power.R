@@ -61,20 +61,16 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
   }
   else rnames=1:length(avals)
 # generate one data set as an example, do some setup 
-  tmp = rxy(avals[1], bvals[1])
-  x=tmp$x
-  y=tmp$y
-  Continuous = ifelse("vals" %in% names(tmp), FALSE, TRUE)
+  dta = rxy(avals[1], bvals[1])
+  x=dta$x
+  y=dta$y
+  Continuous = ifelse("vals" %in% names(dta), FALSE, TRUE)
   if(!Continuous & missing(maxProcessor)) {
      maxProcessor=1
      message("For discrete data only a single processor is used if maxProcessor is not specified")
   }
   Weights=FALSE
-  if(Continuous & length(tmp)==4) {
-    Weights=TRUE
-    wx=tmp$wx
-    wy=tmp$wy
-  }  
+  if(Continuous & length(dta)==4) Weights=TRUE
   if(!Continuous & any( abs(c(x,y)-round(c(x,y)))>1e-10 )) {
     Weights=TRUE
     if(min(x,y)<0.01 | max(x,y)>5)
@@ -82,7 +78,7 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
   } 
   if(missing(UseLargeSample))
     UseLargeSample=ifelse(min(length(x), length(y))<1e3, FALSE, TRUE)
-  if(!Continuous) vals=tmp$vals
+  if(!Continuous) vals=dta$vals
   if(missing(TS)) { # do included methods
     CustomTS=FALSE
     TSextra = list(aaaa=0)
@@ -95,14 +91,15 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
       else {
         typeTS = 2
         TS=TSw_cont
-        tmp=TS(x, y, wx, wy)
+        tmp=TS(x, y, dta$wx, dta$wy)
       }
     }
     else { # Discrete Data
       if(all(abs(c(x,y)-round(c(x,y)))<1e-10)) { # no weights
         typeTS=5
         TS=TS_disc
-        tmp=TS(x, y, vals, rep(1, length(x)))
+        TSextra=list(adw=weights(dta))
+        tmp=TS(x, y, vals, TSextra$adw)
       }
       else { # with weights
         typeTS=6
@@ -113,9 +110,8 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
     }  
 #   already do chi square tests if built-in tests are used
     if(typeTS %in% c(1,2,5,6)) {
-       z = rxy(avals[1], bvals[1])
        pwrchi=NULL
-       if(typeTS==6 & !("TSextra"%in%names(z))) pwrchi=NULL
+       if(typeTS==6 & !("TSextra"%in%names(dta))) pwrchi=NULL
        else {
          if(!UseLargeSample)
              pwrchi = chi_power(rxy, alpha, B[1], avals, bvals, 

@@ -1,5 +1,6 @@
 #include <Rcpp.h>
 #include <ctime>
+#include "teststatistics.h"
 using namespace Rcpp;
 
 //' run permutation test.
@@ -29,17 +30,22 @@ List perm_test_cont(NumericVector x,
                 permy(y.size()), permwy(wy.size());
   Rcpp::Environment base_env("package:base");
   Rcpp::Function set_seed_r = base_env["set.seed"];
+  List dta=List::create(Named("x") = x, Named("y") = y,
+                        Named("wx") = wx, Named("wy") = wy);
+  List permdta=dta;
+  bool withweights=false;
+  if(std::abs(wx(0)+99)>0.01) {
+     withweights=true;
+     permwx=wx;
+     permwy=wy;
+  }
   int seed=round(100000*R::runif(0, 1));
   set_seed_r(seed);
-  if(typeTS==1) TS_data=TS(x, y); 
-  if(typeTS==2) TS_data=TS(x, y, wx, wy); 
-  if(typeTS==3) TS_data=TS(x, y);   
-  if(typeTS==4) TS_data=TS(x, y, TSextra); 
+  TS_data = calcTS(dta, TS, typeTS, TSextra);
   int const nummethods=TS_data.size();
   int i, j;
   NumericVector pvals(nummethods), TS_perm(nummethods), stats(nummethods);
-  List dta=List::create(Named("x") = x, Named("y") = y,
-                        Named("wx") = wx, Named("wy") = wy);
+
   CharacterVector TSmethods=TS_data.names();
   stats.names() = TSmethods; 
   pvals.names() = TSmethods;
@@ -73,16 +79,19 @@ List perm_test_cont(NumericVector x,
     Index = Rcpp::sample(Index, n); 
     for(int i=0;i<nx;++i) {
       permx[i]=z[Index[i]];
-      permwx[i]=wz[Index[i]]; 
+      if(withweights) permwx[i]=wz[Index[i]]; 
     }  
     for(int i=0;i<ny;++i) {
       permy[i]=z[Index[i+nx]];
-      permwy[i]=wz[Index[i+nx]];
+      if(withweights) permwy[i]=wz[Index[i+nx]];
     }
-    if(typeTS==1) TS_perm=TS(permx, permy); 
-    if(typeTS==2) TS_perm=TS(permx, permy, permwx, permwy); 
-    if(typeTS==3) TS_perm=TS(permx, permy);   
-    if(typeTS==4) TS_perm=TS(permx, permy, TSextra); 
+    permdta["x"]=permx;
+    permdta["y"]=permy;
+    if(withweights) {
+      permdta["wx"]=permwx;
+      permdta["wy"]=permwy;
+    }  
+    TS_perm= calcTS(permdta, TS, typeTS, TSextra);
     for(i=0;i<nummethods;++i) {
        if(TS_data(i)<TS_perm(i)) pvals(i)=pvals(i)+1.0;
     }
