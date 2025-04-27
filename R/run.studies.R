@@ -8,6 +8,7 @@
 #' @param alpha =0.05  type I error
 #' @param param_alt (list of) values of parameter under the alternative hypothesis. If missing included values are used.
 #' @param maxProcessor number of cores to use for parallel programming
+#' @param SuppressMessages = FALSE print informative messages?
 #' @param B = 1000
 #' @return A (list of ) matrices of p.values
 #' @examples
@@ -31,7 +32,8 @@
 #' @export
 
 run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=TRUE, 
-          nsample=500, alpha=0.05, param_alt, maxProcessor, B=1000) {
+          nsample=500, alpha=0.05, param_alt, maxProcessor,
+          SuppressMessages = FALSE, B=1000) {
 
   if(!is.function(TS)) {
       if(missing(TS) || !is.logical(TS)) {
@@ -50,7 +52,7 @@ run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=
   NewParams=ifelse(alpha==0.05, FALSE, TRUE)
   if(!missing(param_alt)) {
       NewParams=TRUE
-      message("For new parameter values under the alternative power  values will also be calculated for included tests")
+      if(!SuppressMessages) message("For new parameter values under the alternative power  values will also be calculated for included tests")
       if(!missing(study) && length(study)>1) {
         if(!is.list(param_alt)) {
            message("param_alt has to be a list with the same length as study")
@@ -95,7 +97,7 @@ run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=
   out=as.list(seq_along(study))
   names(out)=study
   for(i in seq_along(study)) {
-    message(paste("Running case study", study[i],"..."))
+    if(!SuppressMessages) message(paste("Running case study", study[i],"..."))
     pwrold=R2sample::power_studies_results[[list.of.studies[i]]]
     tmp=case.studies(study[i], nsample)
     if(BasicComparison) tmp$param_alt=tmp$param_alt[I80[i]]

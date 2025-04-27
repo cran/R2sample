@@ -57,12 +57,12 @@ case.studies=function(which, nsample=500) {
   if(which=="uniform.quadratic.disc") {
      return(list(
        f =  function(a) {
-                if(a==0) p=rep(1/100, 100)
-                else p=diff( (24*0:100/100+a+8*a*((0:100/100)-1/2)^3)/(24+2*a) )
+                if(a==0) p=rep(1/50, 50)
+                else p=diff( (24*0:50/50+a+8*a*((0:50/100)-1/2)^3)/(24+2*a) )
                 list(
-                   x=c(rmultinom(1, nsample, rep(1/100,100))),
+                   x=c(rmultinom(1, nsample, rep(1/50,50))),
                    y=c(rmultinom(1, nsample, p)), 
-                   vals=0:99/100+1/200
+                   vals=0:49/50+1/100
                 )
             },
             param_alt=round(seq(0, 6, length=25), 2)

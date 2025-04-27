@@ -14,6 +14,7 @@ run.studies(
   alpha = 0.05,
   param_alt,
   maxProcessor,
+  SuppressMessages = FALSE,
   B = 1000
 )
 }
@@ -35,6 +36,8 @@ run.studies(
 \item{param_alt}{(list of) values of parameter under the alternative hypothesis. If missing included values are used.}
 
 \item{maxProcessor}{number of cores to use for parallel programming}
+
+\item{SuppressMessages}{= FALSE print informative messages?}
 
 \item{B}{= 1000}
 }

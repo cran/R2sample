@@ -45,14 +45,17 @@ TSw_cont <- function(x, y, wx, wy) {
     .Call(`_R2sample_TSw_cont`, x, y, wx, wy)
 }
 
-#' find test statistics for discrete data
+#' Find test statistics for weighted discrete data
 #' 
-#' @param x  vector of weights data set 1
-#' @param y  vector of weights data set 2
+#' @param x integer vector of counts
+#' @param y integer vector of counts
+#' @param vals A numeric vector with the values of the discrete rv.
+#' @param wx integer vector of weights
+#' @param wy integer vector of weights
 #' @keywords internal
-#' @return A vector of test statistics
-TSw_disc <- function(x, y) {
-    .Call(`_R2sample_TSw_disc`, x, y)
+#' @return A vector with test statistics
+TSw_disc <- function(x, y, vals, wx, wy) {
+    .Call(`_R2sample_TSw_disc`, x, y, vals, wx, wy)
 }
 
 #' find counts in bins. Useful for power calculations. Replaces hist command from R.
@@ -63,100 +66,6 @@ TSw_disc <- function(x, y) {
 #' @return Integer vector of counts
 bincounter <- function(x, bins) {
     .Call(`_R2sample_bincounter`, x, bins)
-}
-
-#' a local function needed for the vignette
-#' 
-#' @param x An integer vector.
-#' @param y An integer vector.
-#' @param vals A numeric vector with the values of the discrete rv.
-#' @return A vector with test statistics
-#' @export
-myTS2 <- function(x, y, vals) {
-    .Call(`_R2sample_myTS2`, x, y, vals)
-}
-
-#' run permutation test.
-#' 
-#' @param x a numeric vector.
-#' @param y a numeric vector.
-#' @param TS routine to calculate test statistics for non-chi-square tests 
-#' @param typeTS type of a test statistic
-#' @param TSextra additional info passed to TS, if necessary
-#' @param wx a numeric vector of weights of x.
-#' @param wy a numeric vector of weights of y.
-#' @param B =5000, number of simulation runs.
-#' @keywords internal
-#' @return A list with test statistics and p values
-perm_test_cont <- function(x, y, TS, typeTS, TSextra, wx, wy, B = 5000L) {
-    .Call(`_R2sample_perm_test_cont`, x, y, TS, typeTS, TSextra, wx, wy, B)
-}
-
-#' run permutation test.
-#' 
-#' @param x A vector of counts or weights.
-#' @param y A vector of counts or weights.
-#' @param vals A numeric vector. Indicates discrete data.
-#' @param TS routine to calculate test statistics for non-chi-square tests 
-#' @param typeTS type of a test statistic
-#' @param TSextra additional info passed to TS, if necessary
-#' @param samplingmethod =1, 1 for independence sampling, 2 for MCMC
-#' @param B Number of simulation runs.
-#' @keywords internal
-#' @return A list with test statistics and p values
-perm_test_disc <- function(x, y, vals, TS, typeTS, TSextra, samplingmethod = 1L, B = 5000L) {
-    .Call(`_R2sample_perm_test_disc`, x, y, vals, TS, typeTS, TSextra, samplingmethod, B)
-}
-
-#' permute discrete data
-#' 
-#' @param dta A list of numeric vectors.
-#' @param samplingmethod  =2 , 1 for independence sampling by expansion or 2 for MCMC
-#' @keywords internal
-#' @return A list of permuted vectors
-permute_disc <- function(dta, samplingmethod = 1L) {
-    .Call(`_R2sample_permute_disc`, dta, samplingmethod)
-}
-
-#' Find the power of various continuous tests via permutation.
-#' 
-#' @param rxy a function that generates x and y data.
-#' @param TS routine to calculate test statistics for non-chi-square tests
-#' @param xparam  arguments for r1.
-#' @param yparam  arguments for r2.
-#' @param typeTS indicator for type of test statistics
-#' @param TSextra additional info passed to TS, if necessary
-#' @param B =1000 number of simulation runs
-#' @keywords internal
-#' @return A list values of test statistics
-power_cont <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
-    .Call(`_R2sample_power_cont`, rxy, xparam, yparam, TS, typeTS, TSextra, B)
-}
-
-#' Find the power of various continuous tests via permutation.
-#' 
-#' @param rxy a function that generates x and y data.
-#' @param TS routine to calculate test statistics for non-chi-square tests
-#' @param xparam  arguments for r1.
-#' @param yparam  arguments for r2.
-#' @param typeTS indicator for type of test statistics
-#' @param TSextra additional info passed to TS, if necessary
-#' @param samplingmethod =1, 1 for independence sampling, 2 for MCMC
-#' @param B =1000 number of simulation runs
-#' @keywords internal
-#' @return A list values of test statistics
-power_disc <- function(rxy, xparam, yparam, TS, typeTS, TSextra, samplingmethod = 1L, B = 1000L) {
-    .Call(`_R2sample_power_disc`, rxy, xparam, yparam, TS, typeTS, TSextra, samplingmethod, B)
-}
-
-#' cpp version of R routine rep
-#' 
-#' @param x numeric vector
-#' @param times integer vector
-#' @keywords internal
-#' @return A numeric vector
-repC <- function(x, times) {
-    .Call(`_R2sample_repC`, x, times)
 }
 
 #' This function calculates the test statistics for continuous data
@@ -170,32 +79,103 @@ calcTS <- function(dta, TS, typeTS, TSextra) {
     .Call(`_R2sample_calcTS`, dta, TS, typeTS, TSextra)
 }
 
-#' This function calculates the test statistics for continuous data
-#' @param  typeTS format of TS
-#' @param  x continuous data set
-#' @param  y continuous data set
-#' @param  TS routine
-#' @param  wx weights for x
-#' @param  wy weights for y
-#' @param  TSextra list passed to TS function
+#' simulate continuous data without weights
+#' @param dta data set
+#' @param TSextra extra stuff
 #' @keywords internal
-#' @return A vector of numbers
-ts_C <- function(typeTS, x, y, TS, TSextra, wx, wy) {
-    .Call(`_R2sample_ts_C`, typeTS, x, y, TS, TSextra, wx, wy)
+#' @return A list of permuted vectors
+gen_sim_data <- function(dta, TSextra) {
+    .Call(`_R2sample_gen_sim_data`, dta, TSextra)
 }
 
-#' This function calculates the test statistics for discrete data
-#' @param  typeTS format of TS
-#' @param  x discrete data set (counts)
-#' @param  y discrete data set (counts)
-#' @param  vals values of discrete RV
-#' @param  TS routine 
-#' @param  TSextra list passed to TS function
-#' @param  adw vector of weights for Anderson-Darling test
+#' simulate continuous data without weights
+#' @param x first data set
+#' @param y second data set
+#' @param TSextra extra stuff
 #' @keywords internal
-#' @return A vector of numbers
-ts_D <- function(typeTS, x, y, vals, TS, TSextra, adw) {
-    .Call(`_R2sample_ts_D`, typeTS, x, y, vals, TS, TSextra, adw)
+#' @return A list of permuted vectors
+gen_cont_noweights <- function(x, y, TSextra) {
+    .Call(`_R2sample_gen_cont_noweights`, x, y, TSextra)
+}
+
+#' simulate continuous data with weights
+#' @param x first data set
+#' @param y second data set
+#' @param wx weights of first data set
+#' @param wy weights of second data set
+#' @param TSextra extra stuff
+#' @keywords internal
+#' @return A list of permuted vectors
+gen_cont_weights <- function(x, y, wx, wy, TSextra) {
+    .Call(`_R2sample_gen_cont_weights`, x, y, wx, wy, TSextra)
+}
+
+#' simulate new discrete data
+#' @param dtax first data set, counts
+#' @param dtay second data set, counts
+#' @param vals values of discrete random variable
+#' @param TSextra extra stuff
+#' @keywords internal
+#' @return A list of permuted vectors
+gen_disc <- function(dtax, dtay, vals, TSextra) {
+    .Call(`_R2sample_gen_disc`, dtax, dtay, vals, TSextra)
+}
+
+#' a local function needed for the vignette
+#' 
+#' @param x An integer vector.
+#' @param y An integer vector.
+#' @param vals A numeric vector with the values of the discrete rv.
+#' @return A vector with test statistics
+#' @export
+myTS2 <- function(x, y, vals) {
+    .Call(`_R2sample_myTS2`, x, y, vals)
+}
+
+#' Find the power of various continuous tests via simutation or permutation.
+#' 
+#' @param rxy a function that generates x and y data.
+#' @param TS routine to calculate test statistics for non-chi-square tests
+#' @param xparam  arguments for r1.
+#' @param yparam  arguments for r2.
+#' @param typeTS indicator for type of test statistics
+#' @param TSextra additional info passed to TS, if necessary
+#' @param B =1000 number of simulation runs
+#' @keywords internal
+#' @return A list values of test statistics
+powerC <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
+    .Call(`_R2sample_powerC`, rxy, xparam, yparam, TS, typeTS, TSextra, B)
+}
+
+#' cpp version of R routine rep
+#' 
+#' @param x numeric vector
+#' @param times integer vector
+#' @keywords internal
+#' @return A numeric vector
+repC <- function(x, times) {
+    .Call(`_R2sample_repC`, x, times)
+}
+
+f <- function() {
+    invisible(.Call(`_R2sample_f`))
+}
+
+test <- function(g) {
+    invisible(.Call(`_R2sample_test`, g))
+}
+
+#' run test using either simulation or permutation.
+#' 
+#' @param dta a list with the data
+#' @param TS routine to calculate test statistics for non-chi-square tests 
+#' @param typeTS type of a test statistic
+#' @param TSextra additional info passed to TS, if necessary
+#' @param B =5000, number of simulation runs.
+#' @keywords internal
+#' @return A list with test statistics and p values
+testC <- function(dta, TS, typeTS, TSextra, B = 5000L) {
+    .Call(`_R2sample_testC`, dta, TS, typeTS, TSextra, B)
 }
 
 #' Find counts and/or sum of weights in bins. Useful for power calculations. Replaces hist command from R.

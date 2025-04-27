@@ -9,6 +9,8 @@
 #' @param  minexpcount =5 minimum required count for chi square tests
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
 #' @param  samplingmethod =independence or MCMC in discrete data case
+#' @param  rnull a function that generates data from a model, possibly with parameter estimation.
+#' @param  SuppressMessages = FALSE print informative messages?
 #' @param  maxProcessor maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
 #' @return A numeric vector of power values.
 #' @export 
@@ -22,9 +24,14 @@
 
 twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000, 
             nbins=c(50,10), minexpcount=5, UseLargeSample, 
-            samplingmethod="independence", maxProcessor) {
+            samplingmethod="independence", rnull, 
+            SuppressMessages=FALSE, maxProcessor) {
 
-  samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
+  if(!missing(UseLargeSample) & !missing(rnull)) {
+      message("Large sample methods are not implemented for GOF-Twosample hybrid problem")
+      return(NULL)
+  }  
+
 # create function rxy which generates data, with two arguments                       
     if(length(list(...))==0) { # f has 0 arguments
        rxy=function(a=0, b=0) f()
@@ -62,93 +69,87 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
   else rnames=1:length(avals)
 # generate one data set as an example, do some setup 
   dta = rxy(avals[1], bvals[1])
+  if(length(dta)<2 | length(dta)>4) {
+    message("routine f has to create a list with 2 (continous data without weights), 3 (discrete data) or 4 (continous data with weights)")
+    return(NULL)
+  }
+  if( (!("x"%in%names(dta))) | (!("x"%in%names(dta))) ) {
+    message("routine f has to create a list with elements named x and y, vals (optional, for discrete data) , wx and wy (optional, for continuous weighted data")
+    return(NULL)
+  }
   x=dta$x
   y=dta$y
+  if("vals"%in%names(dta)) vals=dta$vals
+  if("wx"%in%names(dta)) wx=dta$wx
+  else wx=rep(1, length(x))
+  if("wy"%in%names(dta)) wy=dta$wy
+  else wy=rep(1, length(y))
+
+  samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
   Continuous = ifelse("vals" %in% names(dta), FALSE, TRUE)
+  if(missing(TSextra)) TSextra = list(samplingmethod=samplingmethod)
+  else TSextra=c(TSextra, samplingmethod=samplingmethod)
+  if(!missing(rnull)) TSextra=c(TSextra, rnull=rnull)
+  CustomTS=ifelse(missing(TS), FALSE, TRUE)
+  WithWeights=ifelse(all(c(wx,wy)==1), FALSE, TRUE)
   if(!Continuous & missing(maxProcessor)) {
      maxProcessor=1
-     message("For discrete data only a single processor is used if maxProcessor is not specified")
+     if(!SuppressMessages) message("For discrete data only a single processor is used if maxProcessor is not specified")
   }
-  Weights=FALSE
-  if(Continuous & length(dta)==4) Weights=TRUE
-  if(!Continuous & any( abs(c(x,y)-round(c(x,y)))>1e-10 )) {
-    Weights=TRUE
-    if(min(x,y)<0.01 | max(x,y)>5)
-      message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
-  } 
-  if(missing(UseLargeSample))
-    UseLargeSample=ifelse(min(length(x), length(y))<1e3, FALSE, TRUE)
+  if(min(wx, wy)<0.01 | max(wx, wy)>5)
+      if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
+  if(missing(UseLargeSample)) {
+      UseLargeSample=ifelse(max(length(x), length(y))<1e4, FALSE, TRUE)
+      if(!Continuous) UseLargeSample=FALSE
+  }  
   if(!Continuous) vals=dta$vals
-  if(missing(TS)) { # do included methods
-    CustomTS=FALSE
-    TSextra = list(aaaa=0)
-    if(Continuous) { # Continuous Data
-      if(!Weights) {
+  if(!CustomTS) { # do included methods
+    if(Continuous) {
+      if(!WithWeights) { # No weights
         typeTS = 1
         TS=TS_cont
-        tmp=TS(x, y)
+        tmp=TS(x,y)
       }
-      else {
+      else { # weighted data
         typeTS = 2
         TS=TSw_cont
-        tmp=TS(x, y, dta$wx, dta$wy)
+        tmp=TS(x, y, wx, wy)
+        doMethods=c("KS", "Kuiper", "CvM", "AD")
+        if(min(wx,wy)<0.01 | max(wx,wy)>5)
+          if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
+        }
       }
-    }
-    else { # Discrete Data
-      if(all(abs(c(x,y)-round(c(x,y)))<1e-10)) { # no weights
+      else {
         typeTS=5
         TS=TS_disc
-        TSextra=list(adw=weights(dta))
+        TSextra=c(TSextra, list(adw=weights(dta)))
         tmp=TS(x, y, vals, TSextra$adw)
-      }
-      else { # with weights
-        typeTS=6
-        TS=TSw_disc
-        tmp=TS(x, y)
-        doMethods=c("KS", "Kuiper", "CvM", "AD")
-      }
-    }  
-#   already do chi square tests if built-in tests are used
-    if(typeTS %in% c(1,2,5,6)) {
-       pwrchi=NULL
-       if(typeTS==6 & !("TSextra"%in%names(dta))) pwrchi=NULL
-       else {
-         if(!UseLargeSample)
-             pwrchi = chi_power(rxy, alpha, B[1], avals, bvals, 
-                               nbins, minexpcount, typeTS)
-       }   
-    }   
-    else pwrchi = NULL
-  }
+      }  
+  }  
   else { # do user-supplied tests
-    UseLargeSample=FALSE
-    CustomTS=TRUE
-    outchi=NULL # no chi square tests
     if(substr(deparse(TS)[2], 1, 5)==".Call") {
       if(maxProcessor>1) {
-        message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
+        if(!SuppressMessages) message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
         maxProcessor=1
       }  
     }
     if(Continuous) {
       if(length(formals(TS))==2) {
         typeTS=3
-        TSextra = list(aaaa=0) # nonsense TSextra, so item exists
-        tmp=TS(x, y)  # TS routine without TSextra
+        tmp=TS(x, y)
       }
       else {
         typeTS=4
-        tmp=TS(x, y, TSextra) # TS routine with TSextra
+        tmp=TS(x, y, TSextra)
       }
     }
     else {
       if(length(formals(TS))==3) {
-        typeTS=7
-        TSextra = list(aaaa=0)
+        typeTS=6
         tmp=TS(x, y, vals)
       }  
       else {
-        typeTS=8
+        typeTS=7
         tmp=TS(x, y, vals, TSextra)
       }
     }
@@ -158,43 +159,50 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
     }  
   }
   methodnames=names(tmp)
+  
+# do chi square tests if built-in tests are used
+  pwrchi=NULL
+  if( (typeTS %in% c(1,2,5)) & (!UseLargeSample) ) {
+      pwrchi = chi_power(rxy, alpha, B[1], avals, bvals, 
+                           nbins, minexpcount, typeTS)
+  }   
 
 # Run tests for power
-    if(missing(maxProcessor) & Continuous) {
+  if(missing(maxProcessor) & Continuous) {
        maxProcessor=max(1, parallel::detectCores(logical = FALSE)-1)
-       message(paste("Parallel Programing with ", maxProcessor, " physical cores"))  
-    }   
-    if(Continuous) {
-        if(UseLargeSample) {
-           if(maxProcessor==1) { # no parallel processing 
-               pwr=power_cont_LS(rxy, alpha, B[1], avals, bvals)
-           }
-           else {
-              cl <- parallel::makeCluster(maxProcessor)
-              z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
-                  alpha=alpha, B=round(B/maxProcessor) , xparam=avals, yparam=bvals)
-              parallel::stopCluster(cl)  
-              # Average power over cores  
-              pwr=z[[1]]
-              for(i in 2:maxProcessor) pwr=pwr+z[[i]]
-              pwr = pwr/maxProcessor
-           }
-        }    
-        else  pwr=power_cont_R(rxy=rxy, xparam=avals, yparam=bvals, 
-                             TS=TS, typeTS, TSextra, alpha=alpha, 
-                             B=B,maxProcessor=maxProcessor)
-    }    
-    else {
-      pwr=power_disc_R(rxy=rxy, xparam=avals, yparam=bvals, 
-                        TS=TS, typeTS, TSextra, alpha=alpha, 
-                        samplingmethod=samplingmethod, B=B, 
-                        maxProcessor=maxProcessor)
-    }  
-    if(UseLargeSample) 
-      colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 
-                        "ES large", "ES small" , "EP large", "EP small")
-    else colnames(pwr) = methodnames
-    rownames(pwr) = rnames
-    if(!CustomTS) pwr = cbind(pwr, pwrchi)
-    pwr
+  }   
+  if(UseLargeSample) {
+       if(!SuppressMessages) message("Using methods with large sample theories")
+       if(maxProcessor==1) { # no parallel processing 
+           pwr=power_cont_LS(rxy, alpha, B[1], avals, bvals)
+       }
+       else {
+          cl <- parallel::makeCluster(maxProcessor)
+          z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
+              alpha=alpha, B=round(B/maxProcessor) , xparam=avals, yparam=bvals)
+          parallel::stopCluster(cl)  
+          # Average power over cores  
+          pwr=z[[1]]
+          for(i in 2:maxProcessor) pwr=pwr+z[[i]]
+          pwr = pwr/maxProcessor
+       }
+  }    
+  else {
+    pwr=powerR(rxy=rxy, xparam=avals, yparam=bvals, TS=TS, typeTS, 
+               TSextra, alpha=alpha, B=B,
+               SuppressMessages = SuppressMessages, maxProcessor=maxProcessor)
+  }  
+  if(UseLargeSample) {
+    colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 
+                     "ES large", "ES small" , "EP large", "EP small")
+  }  
+  else colnames(pwr) = methodnames
+  rownames(pwr) = rnames
+  if(!CustomTS) pwr = cbind(pwr, pwrchi)
+  if(nrow(pwr)==1) {
+    nm=colnames(pwr) 
+    pwr=c(pwr)
+    names(pwr)=nm
+  }  
+  pwr
 }

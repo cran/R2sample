@@ -18,11 +18,13 @@ twosample_test(
   maxProcessor,
   UseLargeSample,
   samplingmethod = "independence",
+  rnull,
+  SuppressMessages = FALSE,
   doMethods = "all"
 )
 }
 \arguments{
-\item{x}{a vector of numbers if data is continuous or of counts  if data is discrete.}
+\item{x}{a vector of numbers if data is continuous or of counts  if data is discrete or a list with the data}
 
 \item{y}{a vector of numbers if data is continuous or of counts  if data is discrete.}
 
@@ -47,6 +49,10 @@ twosample_test(
 \item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
 
 \item{samplingmethod}{="independence" or "MCMC" for discrete data}
+
+\item{rnull}{a function that generates data from a model, possibly with parameter estimation.}
+
+\item{SuppressMessages}{= FALSE print informative messages?}
 
 \item{doMethods}{="all" Which methods should be included? If missing all methods are used.}
 }

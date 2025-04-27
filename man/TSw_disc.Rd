@@ -2,19 +2,25 @@
 % Please edit documentation in R/RcppExports.R
 \name{TSw_disc}
 \alias{TSw_disc}
-\title{find test statistics for discrete data}
+\title{Find test statistics for weighted discrete data}
 \usage{
-TSw_disc(x, y)
+TSw_disc(x, y, vals, wx, wy)
 }
 \arguments{
-\item{x}{vector of weights data set 1}
+\item{x}{integer vector of counts}
 
-\item{y}{vector of weights data set 2}
+\item{y}{integer vector of counts}
+
+\item{vals}{A numeric vector with the values of the discrete rv.}
+
+\item{wx}{integer vector of weights}
+
+\item{wy}{integer vector of weights}
 }
 \value{
-A vector of test statistics
+A vector with test statistics
 }
 \description{
-find test statistics for discrete data
+Find test statistics for weighted discrete data
 }
 \keyword{internal}

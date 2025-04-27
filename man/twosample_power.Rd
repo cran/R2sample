@@ -15,6 +15,8 @@ twosample_power(
   minexpcount = 5,
   UseLargeSample,
   samplingmethod = "independence",
+  rnull,
+  SuppressMessages = FALSE,
   maxProcessor
 )
 }
@@ -38,6 +40,10 @@ twosample_power(
 \item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
 
 \item{samplingmethod}{=independence or MCMC in discrete data case}
+
+\item{rnull}{a function that generates data from a model, possibly with parameter estimation.}
+
+\item{SuppressMessages}{= FALSE print informative messages?}
 
 \item{maxProcessor}{maximum number of cores to use. If maxProcessor=1 no parallel computing is used.}
 }

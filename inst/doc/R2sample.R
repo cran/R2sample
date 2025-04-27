@@ -13,7 +13,7 @@ set.seed(123)
 ## -----------------------------------------------------------------------------
 x1 = rnorm(100)
 y1 = rnorm(120)
-twosample_test(x1, y1, B=500, maxProcessor = 2)
+twosample_test(x1, y1, B=500)
 
 ## -----------------------------------------------------------------------------
 twosample_test_adjusted_pvalue(x1, y1)
@@ -28,21 +28,28 @@ myTS1 = function(x, y) {
 }
 
 ## -----------------------------------------------------------------------------
-twosample_test(x1, y1, TS=myTS1, B=500, maxProcessor = 2)
+twosample_test(x1, y1, TS=myTS1, B=500)
 
 ## -----------------------------------------------------------------------------
 x2 = table(c(0:5,rbinom(1000, 5, 0.5)))-1
 y2 = table(c(0:5,rbinom(1200, 5, 0.55)))-1
 rbind(x2, y2)
-twosample_test(x2, y2, vals=0:5, B=500, maxProcessor = 2)$p.values
+twosample_test(x2, y2, vals=0:5, B=500)$p.values
 
 ## -----------------------------------------------------------------------------
 twosample_test(x2, y2, vals=0:5, TS=R2sample::myTS2, B=500)
 
 ## -----------------------------------------------------------------------------
+rnull=function(dta) {
+   list(x=dta$x,
+        y=rnorm(length(dta$y), mean(dta$x), sd(dta$x)))
+}
+twosample_test(x1, y1, rnull=rnull, B=500)
+
+## -----------------------------------------------------------------------------
 x=rnorm(10)
 y=rnorm(12)
-twosample_test(x, y, B=500, maxProcessor = 2, doMethods=c("KS","AD"))
+twosample_test(x, y, B=500, doMethods=c("KS","AD"))
 
 ## ----eval=FALSE---------------------------------------------------------------
 # run_shiny()

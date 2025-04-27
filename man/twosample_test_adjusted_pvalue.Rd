@@ -16,11 +16,13 @@ twosample_test_adjusted_pvalue(
   nbins = c(50, 10),
   minexpcount = 5,
   samplingmethod = "independence",
+  rnull,
+  SuppressMessages = FALSE,
   doMethods
 )
 }
 \arguments{
-\item{x}{a vector of numbers if data is continuous or of counts  if data is discrete.}
+\item{x}{a vector of numbers if data is continuous or of counts  if data is discrete, or a list with the data.}
 
 \item{y}{a vector of numbers if data is continuous or of counts  if data is discrete.}
 
@@ -41,6 +43,10 @@ twosample_test_adjusted_pvalue(
 \item{minexpcount}{= 5, minimum required expected counts for chi-square tests}
 
 \item{samplingmethod}{="independence" or "MCMC" for discrete data}
+
+\item{rnull}{routine for parametric bootstrap}
+
+\item{SuppressMessages}{= FALSE print informative messages?}
 
 \item{doMethods}{Which methods should be included?}
 }
