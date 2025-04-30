@@ -1,6 +1,6 @@
-7bf1bba853dbf04fe5b830dee5dfe400 *DESCRIPTION
+beb08eaa0b2533cf6471e4f5ae5c0cbc *DESCRIPTION
 3c91e468f9d30d3af2a823f6b58913ab *NAMESPACE
-0a0754ec05c20e8c3422fda670a02aee *NEWS.md
+79f7277366324b5a13a4124d97346fa8 *NEWS.md
 4e1a0800eec3aa0f467f54b6c0d0b488 *R/R2sample-package.R
 8b59def47b4f73565394c0a9069e5c04 *R/RcppExports.R
 a9bbef583c458a005fd5e8a485455af1 *R/asymptotic_pvalues.R
@@ -25,7 +25,7 @@ cc378d125fb0cae7321ab0299a5f29bb *data/power_studies_results.rda
 5da0d1f298fcbf8ba34cd13a3581c7fa *data/pvaluecdf.rda
 e6b92c2aa9ad65665b5ff36bf61d7735 *inst/doc/R2sample.R
 2c6892e78a6f05440036347f63a9c025 *inst/doc/R2sample.Rmd
-082d9a7b320188ebc31bad06f15f876c *inst/doc/R2sample.html
+5914e5440af2e7d219b08f1027f09ec7 *inst/doc/R2sample.html
 26d1228115ed206d7a2249da07774f5d *inst/examples/TS_cont.cpp
 500df7d817cabd9554c4cc2d60a198de *inst/examples/TS_disc.cpp
 23b659ebe1103454453f5dc0f77edb6a *inst/shiny-example/r2sample_shiny/server.R
@@ -82,11 +82,11 @@ b51e122a72cd149488af13a755949cdb *src/calcTS.cpp
 6407039805eb8c63829f0e4287176567 *src/gen_sim_data.cpp
 42eeeb87ff159def42eecdb211ee0ade *src/gen_sim_data.h
 4be37e6190c11f34375feceb52a5e989 *src/myTS2.cpp
-90f0ccad4b7070dd0a8a1db0b784ce78 *src/powerC.cpp
+4d913826c3ea6d971725b6c6617f37c5 *src/powerC.cpp
 24f5742b9ddef46fdc4a0bd50d087644 *src/repC.cpp
 dab95b04aded5eb2e74de27506eeae2e *src/repC.h
 d65cc390a064d53e713c9d55a7145fc7 *src/test.cpp
-1e6c3cfe60adab6ee95b2e6215e5e2b9 *src/testC.cpp
+513af4a6680c43fc61d53cf737d61308 *src/testC.cpp
 c16ea3511e2de4ed16d8694f64b05def *src/wbincounter.cpp
 42b4f5163efeb086b253f2d7bcf79e90 *src/wbincounter.h
 ed99df633c89ae40dab689bf59771322 *src/weights.cpp

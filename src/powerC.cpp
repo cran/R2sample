@@ -37,7 +37,6 @@ List powerC(Function rxy,
   int cn=-1;
   NumericMatrix realdta(B*nl, 1+nummethods), simdta(B*nl, 1+nummethods);
   NumericVector TS_sim(nummethods);
-
 /*l loop over values in xparam */  
   for(l=0;l<nl;++l) {
 /*m loop over simulation runs */  
@@ -52,11 +51,13 @@ List powerC(Function rxy,
       TS_data = calcTS(dta, TS, typeTS, TSextra);
       realdta(cn,0)=xparam(l);
       for(j=0;j<nummethods;++j) realdta(cn,j+1)=TS_data(j);
+      GetRNGstate();
       List tmp=gen_sim_data(dta, TSextra);
+      PutRNGstate();
       TS_sim = calcTS(tmp, TS, typeTS, TSextra);
       simdta(cn,0)=xparam(l);
       for(j=0;j<nummethods;++j) simdta(cn,j+1)=TS_sim(j);
-    }  
+    }
   }
   return List::create(Named("Data")=realdta, 
                Named("Simulated")=simdta);

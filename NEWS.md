@@ -1,3 +1,5 @@
+# R2sample 4.0.1
+                Fixed a serious bug in twosample_test   
 # R2sample 4.0.0
                 It is now possible to use a routine to generate new simulated data to
                 find p values, the parametric bootstrap approach. This is needed for the

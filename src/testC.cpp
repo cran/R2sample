@@ -36,9 +36,10 @@ List testC(List dta,
   if(B==0) return List::create(Named("statistics")=stats);
 /* find test statistic for simulated or simuted data  */ 
   for(j=0;j<B;++j) {
+    GetRNGstate();
     List simdta=gen_sim_data(dta, TSextra);
+    PutRNGstate();
     TS_sim= calcTS(simdta, TS, typeTS, TSextra);
-    
     for(i=0;i<nummethods;++i) {
        if(TS_data(i)<TS_sim(i)) pvals(i)=pvals(i)+1.0;
     }
