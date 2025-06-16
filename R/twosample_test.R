@@ -1,4 +1,9 @@
+#' Tests for the univariate two-sample problem
+#' 
 #' This function runs a number of two sample tests using Rcpp and parallel computing.
+#' 
+#' For details consult vignette("R2sample","R2sample")
+#' 
 #' @param  x  a vector of numbers if data is continuous or of counts  if data is discrete or a list with the data
 #' @param  y a vector of numbers if data is continuous or of counts  if data is discrete.
 #' @param  vals =NA, a vector of numbers, the values of a discrete random variable. NA if data is continuous data.
@@ -11,9 +16,9 @@
 #' @param  minexpcount =5, minimum required expected counts for chi-square tests.
 #' @param  maxProcessor maximum number of cores to use. If missing (the default) no parallel processing is used.
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
-#' @param  samplingmethod ="independence" or "MCMC" for discrete data
+#' @param  samplingmethod ="Binomial" or "independence" for discrete data
 #' @param  rnull a function that generates data from a model, possibly with parameter estimation.
-#' @param  doMethods ="all" Which methods should be included? If missing all methods are used.
+#' @param  doMethods ="all" a vector of codes for the methods to include. If "all", all methods are used.
 #' @param  SuppressMessages = FALSE print informative messages?
 #' @return A list of two numeric vectors, the test statistics and the p values. 
 #' @export 
@@ -29,7 +34,7 @@
 twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
                         wy=rep(1, length(y)), B=5000, nbins=c(50,10),
                         minexpcount=5, maxProcessor,  UseLargeSample, 
-                        samplingmethod="independence", rnull, 
+                        samplingmethod="Binomial", rnull, 
                         SuppressMessages = FALSE, doMethods="all") {
     default.methods = list(cont=c("EP small", "ZA", "ZK", "Wassp1"), 
                            disc=c("small", "ZA", "Kuiper", "Wassp1"))
@@ -49,7 +54,8 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
         if(!SuppressMessages) message(paste("Using",maxProcessor," cores"))  
       }  
     }
-    samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
+    if(!is.numeric(samplingmethod))
+        samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
     if(missing(TSextra)) TSextra = list(samplingmethod=samplingmethod)
     else TSextra=c(TSextra, samplingmethod=samplingmethod)
     if(!missing(rnull)) TSextra=c(TSextra, rnull=rnull)
@@ -59,6 +65,8 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
     if(missing(UseLargeSample))
        UseLargeSample=ifelse(min(length(x), length(y))<1e4, FALSE, TRUE)  
     outchi = list(statistics=NULL, p.values=NULL)
+    if(test_methods(doMethods,Continuous, UseLargeSample, WithWeights))
+       return(NULL)
 # what methods are to be run?  
     if(!CustomTS) { # do included methods
       if(Continuous) {
@@ -162,7 +170,7 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
        p.values=asymptotic_pvalues(statistics, length(x), length(y))  
        s = c(statistics, outchi$statistics)
        p = c(p.values, outchi$p.values)
-       return(list(statistics=s, p.values=p))
+       return(list(statistics=round(s,4), p.values=round(p,4)))
     }  
     
 # if either only one core is present, B=0 or maxProcessor=1, run testC.

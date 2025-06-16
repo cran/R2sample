@@ -1,30 +1,49 @@
+#' Power estimation for two-sample methods
+#' 
 #' Find the power of various two sample tests using Rcpp and parallel computing.
+#' 
+#' For details consult vignette("R2sample","R2sample")
+#' 
+#' This routine runs a number of different two-sample tests for univariate data,
+#' either discrete or continuous. The user can also provide their own test method.
+#'  
 #' @param  f  function to generate a list with data sets x, y and (optional) vals, weights
 #' @param  ... additional arguments passed to f, up to 2
 #' @param  TS routine to calculate test statistics for non-chi-square tests
 #' @param  TSextra additional info passed to TS, if necessary
+#' @param  With.p.value =FALSE does user supplied routine return p values?
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  B =1000, number of simulation runs.
 #' @param  nbins =c(50,10), number of bins for chi large and chi small.
 #' @param  minexpcount =5 minimum required count for chi square tests
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
-#' @param  samplingmethod =independence or MCMC in discrete data case
+#' @param  samplingmethod ="Binomial" or independence in discrete data case
 #' @param  rnull a function that generates data from a model, possibly with parameter estimation.
 #' @param  SuppressMessages = FALSE print informative messages?
 #' @param  maxProcessor maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
 #' @return A numeric vector of power values.
 #' @export 
 #' @examples
-#'  f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
-#'  twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
-#'  f=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
+#'  # Power of standard normal vs. normal with mean mu.
+#'  f1=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
+#'  #Power of uniform discrete distribution vs. with different probabilities.
+#'  twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1)
+#'  f2=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
 #'        y=table(sample(1:5, size=n, replace=TRUE, 
 #'        prob=c(1, 1, 1, 1, p))), vals=1:5)
-#'  twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
-
-twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000, 
+#'  twosample_power(f2, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
+#'  # Compare power of a new test with those in package:
+#'  myTS=function(x,y) {z=c(mean(x)-mean(y),sd(x)-sd(y));names(z)=c("M","S");z}
+#'  cbind(twosample_power(f1, mu=c(0,2), TS=myTS,B=100, maxProcessor = 1),
+#'        twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1))
+#'  # Power estimation if routine returns a p value
+#'  myTS2=function(x, y) {out=ks.test(x,y)$p.value; names(out)="KSp"; out}      
+#'  twosample_power(f1, c(0,1), TS=myTS2, With.p.value = TRUE,  B=100)
+#'  
+twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE, 
+            alpha=0.05, B=1000, 
             nbins=c(50,10), minexpcount=5, UseLargeSample, 
-            samplingmethod="independence", rnull, 
+            samplingmethod="Binomial", rnull, 
             SuppressMessages=FALSE, maxProcessor) {
 
   if(!missing(UseLargeSample) & !missing(rnull)) {
@@ -85,7 +104,8 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
   if("wy"%in%names(dta)) wy=dta$wy
   else wy=rep(1, length(y))
 
-  samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
+  if(!is.numeric(samplingmethod))
+     samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
   Continuous = ifelse("vals" %in% names(dta), FALSE, TRUE)
   if(missing(TSextra)) TSextra = list(samplingmethod=samplingmethod)
   else TSextra=c(TSextra, samplingmethod=samplingmethod)
@@ -153,6 +173,10 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
         tmp=TS(x, y, vals, TSextra)
       }
     }
+    if(is.list(tmp)) {
+        message("TS should return a named vector of either  test statistic(s) or p value(s), but not both.")
+        return(NULL)
+    }
     if(is.null(names(tmp))) {
       message("output of TS routine has to be a named vector!")
       return(NULL)
@@ -188,9 +212,14 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
        }
   }    
   else {
-    pwr=powerR(rxy=rxy, xparam=avals, yparam=bvals, TS=TS, typeTS, 
+    if(With.p.value) {
+       pwr=power_newtest(TS, f, avals, TSextra, alpha, B)
+    }
+    else {
+       pwr=powerR(rxy=rxy, xparam=avals, yparam=bvals, TS=TS, typeTS, 
                TSextra, alpha=alpha, B=B,
                SuppressMessages = SuppressMessages, maxProcessor=maxProcessor)
+    }
   }  
   if(UseLargeSample) {
     colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 
@@ -204,5 +233,5 @@ twosample_power=function(f, ..., TS, TSextra, alpha=0.05, B=1000,
     pwr=c(pwr)
     names(pwr)=nm
   }  
-  pwr
+  round(pwr, 3)
 }

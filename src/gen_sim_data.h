@@ -34,8 +34,8 @@ Rcpp::List gen_cont_weights(
 
 #include <Rcpp.h>
 Rcpp::List gen_disc(
-              Rcpp::IntegerVector x,
-              Rcpp::IntegerVector y, 
+              Rcpp::NumericVector x,
+              Rcpp::NumericVector y, 
               Rcpp::NumericVector vals,
               Rcpp::List TSextra);
 

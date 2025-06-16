@@ -2,7 +2,7 @@
 % Please edit documentation in R/twosample_test_adjusted_pvalue.R
 \name{twosample_test_adjusted_pvalue}
 \alias{twosample_test_adjusted_pvalue}
-\title{This function runs a number of two sample tests using Rcpp and parallel computing and then finds the correct p value for the combined tests.}
+\title{Adjusted p values for simultaneous testing in the two-sample problem.}
 \usage{
 twosample_test_adjusted_pvalue(
   x,
@@ -42,19 +42,22 @@ twosample_test_adjusted_pvalue(
 
 \item{minexpcount}{= 5, minimum required expected counts for chi-square tests}
 
-\item{samplingmethod}{="independence" or "MCMC" for discrete data}
+\item{samplingmethod}{="independence" or "Binomial" for discrete data}
 
 \item{rnull}{routine for parametric bootstrap}
 
 \item{SuppressMessages}{= FALSE print informative messages?}
 
-\item{doMethods}{Which methods should be included?}
+\item{doMethods}{="all" a vector of codes for the methods to include. If "all", all methods are used.}
 }
 \value{
 A list of two numeric vectors, the test statistics and the p values.
 }
 \description{
 This function runs a number of two sample tests using Rcpp and parallel computing and then finds the correct p value for the combined tests.
+}
+\details{
+For details consult vignette("R2sample","R2sample")
 }
 \examples{
  x=rnorm(100)

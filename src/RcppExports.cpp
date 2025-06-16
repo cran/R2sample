@@ -115,6 +115,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// getI
+int getI(NumericVector p);
+RcppExport SEXP _R2sample_getI(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(getI(p));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gen_cont_noweights
 Rcpp::List gen_cont_noweights(NumericVector x, NumericVector y, List TSextra);
 RcppExport SEXP _R2sample_gen_cont_noweights(SEXP xSEXP, SEXP ySEXP, SEXP TSextraSEXP) {
@@ -144,13 +155,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // gen_disc
-Rcpp::List gen_disc(IntegerVector dtax, IntegerVector dtay, NumericVector vals, List TSextra);
+Rcpp::List gen_disc(NumericVector dtax, NumericVector dtay, NumericVector vals, List TSextra);
 RcppExport SEXP _R2sample_gen_disc(SEXP dtaxSEXP, SEXP dtaySEXP, SEXP valsSEXP, SEXP TSextraSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type dtax(dtaxSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dtay(dtaySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type dtax(dtaxSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type dtay(dtaySEXP);
     Rcpp::traits::input_parameter< NumericVector >::type vals(valsSEXP);
     Rcpp::traits::input_parameter< List >::type TSextra(TSextraSEXP);
     rcpp_result_gen = Rcpp::wrap(gen_disc(dtax, dtay, vals, TSextra));
@@ -196,25 +207,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::IntegerVector >::type times(timesSEXP);
     rcpp_result_gen = Rcpp::wrap(repC(x, times));
     return rcpp_result_gen;
-END_RCPP
-}
-// f
-void f();
-RcppExport SEXP _R2sample_f() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    f();
-    return R_NilValue;
-END_RCPP
-}
-// test
-void test(Function g);
-RcppExport SEXP _R2sample_test(SEXP gSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Function >::type g(gSEXP);
-    test(g);
-    return R_NilValue;
 END_RCPP
 }
 // testC
@@ -265,14 +257,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_R2sample_bincounter", (DL_FUNC) &_R2sample_bincounter, 2},
     {"_R2sample_calcTS", (DL_FUNC) &_R2sample_calcTS, 4},
     {"_R2sample_gen_sim_data", (DL_FUNC) &_R2sample_gen_sim_data, 2},
+    {"_R2sample_getI", (DL_FUNC) &_R2sample_getI, 1},
     {"_R2sample_gen_cont_noweights", (DL_FUNC) &_R2sample_gen_cont_noweights, 3},
     {"_R2sample_gen_cont_weights", (DL_FUNC) &_R2sample_gen_cont_weights, 5},
     {"_R2sample_gen_disc", (DL_FUNC) &_R2sample_gen_disc, 4},
     {"_R2sample_myTS2", (DL_FUNC) &_R2sample_myTS2, 3},
     {"_R2sample_powerC", (DL_FUNC) &_R2sample_powerC, 7},
     {"_R2sample_repC", (DL_FUNC) &_R2sample_repC, 2},
-    {"_R2sample_f", (DL_FUNC) &_R2sample_f, 0},
-    {"_R2sample_test", (DL_FUNC) &_R2sample_test, 1},
     {"_R2sample_testC", (DL_FUNC) &_R2sample_testC, 5},
     {"_R2sample_wbincounter", (DL_FUNC) &_R2sample_wbincounter, 3},
     {"_R2sample_weights", (DL_FUNC) &_R2sample_weights, 1},

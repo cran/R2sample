@@ -16,8 +16,8 @@ Rcpp::List gen_sim_data(List dta, List TSextra) {
      newdta=gen_cont_noweights(x, y, TSextra);
    }
    if(dta.size()==3) {
-     IntegerVector x=dta["x"];
-     IntegerVector y=dta["y"];
+     NumericVector x=dta["x"];
+     NumericVector y=dta["y"];
      NumericVector vals=dta["vals"];
      newdta=gen_disc(x, y, vals, TSextra);
    }
@@ -30,6 +30,14 @@ Rcpp::List gen_sim_data(List dta, List TSextra) {
    }
    return newdta;
 } 
+
+// [[Rcpp::export]]
+int getI(NumericVector p) {
+  double tmp=R::runif(0,1);
+  int j=0;
+  while (tmp>p(j)) ++j;
+  return j;
+}
                                
 //' simulate continuous data without weights
 //' @param x first data set
@@ -138,8 +146,8 @@ Rcpp::List gen_cont_weights(NumericVector x,
 //' @keywords internal
 //' @return A list of permuted vectors
 // [[Rcpp::export]]
-Rcpp::List gen_disc(IntegerVector dtax, 
-                    IntegerVector dtay,
+Rcpp::List gen_disc(NumericVector dtax, 
+                    NumericVector dtay,
                     NumericVector vals,
                     List TSextra) {
   
@@ -155,11 +163,11 @@ Rcpp::List gen_disc(IntegerVector dtax,
   }
   List out;
   int nx, ny, n, i, j,  d, k=dtax.size();
-  NumericVector xy(k), xout(k), yout(k);
+  NumericVector xout(k), yout(k);
   IntegerVector Index(k);
   int samplingmethod=TSextra["samplingmethod"];
     
-  std::vector<int> x(k), y(k);
+  IntegerVector xy(k), x(k), y(k);
   std::vector<double> rx(k), ry(k);
   nx=0;
   ny=0;
@@ -207,30 +215,33 @@ Rcpp::List gen_disc(IntegerVector dtax,
       } 
   }
   if(samplingmethod==2) {
-      List dta=List::create(Named("dtax")=dtax,
-                            Named("dtay")=dtay,
-                            Named("vals")=vals);
-      IntegerVector ij=Rcpp::sample(Index, 2, false);
-      i=ij[0];
-      j=ij[1];    
-      d=1;
-      double tmp=(xy[i]-x[i])/(xy[j]+1.0-x[j])*double(x[j])/(x[i]+1.0);
-      if(R::runif(0, 1)<0.5 && x[j]>5 && y[i]>5) {
-        d=2;
-        tmp=tmp*(xy[i]-x[i]-1.0)/(xy[j]+2.0-x[j])*double(x[j]+1)/(x[i]+2.0);
-      }
-      if(R::runif(0, 1)<0.25 && x[j]>10 && y[i]>10) {
-        d=3;
-        tmp=tmp*(xy[i]-x[i]-2.0)/(xy[j]+3.0-x[j])*double(x[j]+2.0)/(x[i]+3.0);
-      }      
-      if(R::runif(0, 1)>tmp) return dta;
-      else {
-        x[i]=x[i]+d;
-        x[j]=x[j]-d;
-        y[i]=y[i]-d;
-        y[j]=y[j]+d;
-      }
-  }
+    double p=double(nx)/double(nx+ny);
+    NumericVector pr(x.size());
+    pr(0)=double(xy(0));
+    for(int i=1;i<xy.size();++i) 
+      pr(i)=pr(i-1)+double(xy(i));
+    for(int i=0;i<xy.size();++i) 
+      pr(i)=pr(i)/pr(xy.size()-1);
+    IntegerVector tt(1), newx(i), newy(i);
+    for(i=0;i<k;++i) {
+      tt=Rcpp::rbinom(1, xy(i), p);
+      newx(i)=tt(0);
+      newy(i)=xy(i)-tt(0);
+    }   
+    d=sum(x)-sum(newx);
+    while (d<0) {
+      j=getI(pr);
+      newx(j)=newx(j)-1;
+      d=d+1;
+    }
+    while (d>0) {
+      j=getI(pr);
+      newx(j)=newx(j)+1;
+      d=d-1;
+    }
+    x=newx;
+    y=xy-newx;
+  }  
   for(i=0;i<k;++i) {
       xout[i]=x[i];
       yout[i]=y[i];

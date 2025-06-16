@@ -1,4 +1,9 @@
+#' Adjusted p values for simultaneous testing in the two-sample problem.
+#'
 #' This function runs a number of two sample tests using Rcpp and parallel computing and then finds the correct p value for the combined tests.
+#'
+#' For details consult vignette("R2sample","R2sample")
+#' 
 #' @param  x  a vector of numbers if data is continuous or of counts  if data is discrete, or a list with the data.
 #' @param  y a vector of numbers if data is continuous or of counts  if data is discrete.
 #' @param  vals =NA, a vector of numbers, the values of a discrete random variable. NA if data is continuous data.
@@ -9,10 +14,10 @@
 #' @param  B =c(5000, 1000), number of simulation runs for permutation test
 #' @param  nbins =c(50,10), number of bins for chi square tests.
 #' @param  minexpcount = 5, minimum required expected counts for chi-square tests
-#' @param  samplingmethod ="independence" or "MCMC" for discrete data
+#' @param  samplingmethod ="independence" or "Binomial" for discrete data
 #' @param  rnull routine for parametric bootstrap
 #' @param  SuppressMessages = FALSE print informative messages?
-#' @param  doMethods  Which methods should be included? 
+#' @param  doMethods ="all" a vector of codes for the methods to include. If "all", all methods are used.
 #' @return A list of two numeric vectors, the test statistics and the p values. 
 #' @examples
 #'  x=rnorm(100)
@@ -55,6 +60,8 @@ twosample_test_adjusted_pvalue=function(x, y, vals=NA, TS, TSextra, wx=rep(1, le
       if(Continuous) doMethods=all.methods$cont
       else doMethods=all.methods$disc
     }
+    if(test_methods(doMethods,Continuous, FALSE, WithWeights))
+      return(NULL)
 # what methods are to be run?  
     if(!CustomTS) { # do included methods
       if(Continuous) {
@@ -151,7 +158,7 @@ twosample_test_adjusted_pvalue=function(x, y, vals=NA, TS, TSextra, wx=rep(1, le
     minp_sim=apply(pvals[-1, ,drop=FALSE], 1, min)
     z=seq(0, 1, length=250)
     y=z
-    for(i in 1:250) y[i]=sum(minp_sim<=z[i])/B[2]
+    for(i in 1:250) y[i]=sum(minp_sim<=z[i])/length(minp_sim)
     I=c(1:250)[z>minp_x][1]-1
     slope=(y[I+1]-y[I])/(z[I+1]-z[I])
     minp_adj=round(y[I]+slope*(minp_x-z[I]),4)

@@ -52,5 +52,5 @@ powerR=function(rxy, xparam, yparam,TS, typeTS, TSextra, alpha=0.05,
         for(j in seq_along(crtval)) 
          pwr[i, j]=sum(tmpD[ ,j]>crtval[j])/nrow(tmpD)
     }   
-    round(pwr, 3)
+    pwr
 }

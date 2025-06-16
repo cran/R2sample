@@ -1,4 +1,10 @@
-#' This function runs the case studies included in the package
+#' Power Comparisons
+#' 
+#' This function runs the case studies included in the package and compares the
+#' power of a new test to those included.
+#' 
+#' For details consult vignette("R2sample","R2sample")
+#' 
 #' @param TS routine to calculate test statistics.
 #' @param study either the name of the study, or its number. If missing all the studies are run.
 #' @param TSextra list passed to TS.
@@ -10,7 +16,7 @@
 #' @param maxProcessor number of cores to use for parallel programming
 #' @param SuppressMessages = FALSE print informative messages?
 #' @param B = 1000
-#' @return A (list of ) matrices of p.values
+#' @return A (list of ) matrices of power values.
 #' @examples
 #' #The new test is a simple chisquare test:
 #' chitest = function(x, y, TSextra) {
@@ -121,7 +127,7 @@ run.studies <- function(TS, study, TSextra, With.p.value=FALSE, BasicComparison=
      rownames(A) = list.of.studies
      colnames(A) = colnames(out[[1]])
      a1=apply(A, 1, rank)
-     message("Average rank of the tests:")
+     message("Average number of studies a method is close to the best:")
      print(sort(apply(a1,1,mean)))
      return(A)
   }

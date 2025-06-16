@@ -2,7 +2,7 @@
 % Please edit documentation in R/power_newtest.R
 \name{power_newtest}
 \alias{power_newtest}
-\title{This function estimates the power of test routines that calculate p value(s)}
+\title{Power for tests with p values}
 \usage{
 power_newtest(TS, f, param_alt, TSextra, alpha = 0.05, B = 1000)
 }

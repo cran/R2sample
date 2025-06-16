@@ -31,6 +31,6 @@ power_cont_LS = function(rxy, alpha=0.05, B=1000, xparam=0.0, yparam=0.0) {
         pwr[l, ]=pwr[l, ]+ifelse(tmp$p.values<alpha, 1, 0)
     }  # end of loop of power simulation
   } 
-  pwr/B
+  round(pwr/B,4)
 }
 

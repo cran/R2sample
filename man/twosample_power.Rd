@@ -2,19 +2,20 @@
 % Please edit documentation in R/twosample_power.R
 \name{twosample_power}
 \alias{twosample_power}
-\title{Find the power of various two sample tests using Rcpp and parallel computing.}
+\title{Power estimation for two-sample methods}
 \usage{
 twosample_power(
   f,
   ...,
   TS,
   TSextra,
+  With.p.value = FALSE,
   alpha = 0.05,
   B = 1000,
   nbins = c(50, 10),
   minexpcount = 5,
   UseLargeSample,
-  samplingmethod = "independence",
+  samplingmethod = "Binomial",
   rnull,
   SuppressMessages = FALSE,
   maxProcessor
@@ -29,6 +30,8 @@ twosample_power(
 
 \item{TSextra}{additional info passed to TS, if necessary}
 
+\item{With.p.value}{=FALSE does user supplied routine return p values?}
+
 \item{alpha}{=0.05, the level of the hypothesis test}
 
 \item{B}{=1000, number of simulation runs.}
@@ -39,7 +42,7 @@ twosample_power(
 
 \item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
 
-\item{samplingmethod}{=independence or MCMC in discrete data case}
+\item{samplingmethod}{="Binomial" or independence in discrete data case}
 
 \item{rnull}{a function that generates data from a model, possibly with parameter estimation.}
 
@@ -53,11 +56,27 @@ A numeric vector of power values.
 \description{
 Find the power of various two sample tests using Rcpp and parallel computing.
 }
+\details{
+For details consult vignette("R2sample","R2sample")
+
+This routine runs a number of different two-sample tests for univariate data,
+either discrete or continuous. The user can also provide their own test method.
+}
 \examples{
- f=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
- twosample_power(f, mu=c(0,2), B=100, maxProcessor = 1)
- f=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
+ # Power of standard normal vs. normal with mean mu.
+ f1=function(mu) list(x=rnorm(25), y=rnorm(25, mu))
+ #Power of uniform discrete distribution vs. with different probabilities.
+ twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1)
+ f2=function(n, p) list(x=table(sample(1:5, size=1000, replace=TRUE)), 
        y=table(sample(1:5, size=n, replace=TRUE, 
        prob=c(1, 1, 1, 1, p))), vals=1:5)
- twosample_power(f, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
+ twosample_power(f2, n=c(1000, 2000), p=c(1, 1.5), B=100, maxProcessor = 1)
+ # Compare power of a new test with those in package:
+ myTS=function(x,y) {z=c(mean(x)-mean(y),sd(x)-sd(y));names(z)=c("M","S");z}
+ cbind(twosample_power(f1, mu=c(0,2), TS=myTS,B=100, maxProcessor = 1),
+       twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1))
+ # Power estimation if routine returns a p value
+ myTS2=function(x, y) {out=ks.test(x,y)$p.value; names(out)="KSp"; out}      
+ twosample_power(f1, c(0,1), TS=myTS2, With.p.value = TRUE,  B=100)
+ 
 }

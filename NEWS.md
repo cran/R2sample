@@ -1,18 +1,26 @@
+# R2sample 4.1.0
+               User supplied routine can now also return p value for twosample_power
+               Some other minor changes
+               
 # R2sample 4.0.1
-                Fixed a serious bug in twosample_test   
+                Fixed a serious bug in twosample_test  
+                 
 # R2sample 4.0.0
                 It is now possible to use a routine to generate new simulated data to
                 find p values, the parametric bootstrap approach. This is needed for the
                 goodness-of-fit/twosample hybrid problem.
-                Also some changes to the hidden interior routines   
+                Also some changes to the hidden interior routines 
+                  
 # R2sample 3.1.1
                 Fixed a minor bug
+                
 # R2sample 3.1.0
                 Improved the routines that do power calculations for better speed. 
                 Included a timing routine to see whether using a single core is 
                 faster than using multiple processing.
                 Some minor changes to other routines.
 # R2sample 3.0.0
+
                 Added routine to allow benchmarking of new user
                 supplied tests. Some minor changes to other routines.
                    

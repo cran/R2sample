@@ -56,7 +56,7 @@ twosample_test(x, y, B=500, doMethods=c("KS","AD"))
 
 ## ----eval=FALSE---------------------------------------------------------------
 # plot_power(twosample_power(
-#   f=function(df) list(x=rnorm(100), y=rt(200, df)), df=1:10)
+#   f=function(df) list(x=rnorm(100), y=rt(200, df))
 # )
 
 ## ----eval=FALSE---------------------------------------------------------------

@@ -88,6 +88,10 @@ gen_sim_data <- function(dta, TSextra) {
     .Call(`_R2sample_gen_sim_data`, dta, TSextra)
 }
 
+getI <- function(p) {
+    .Call(`_R2sample_getI`, p)
+}
+
 #' simulate continuous data without weights
 #' @param x first data set
 #' @param y second data set
@@ -155,14 +159,6 @@ powerC <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
 #' @return A numeric vector
 repC <- function(x, times) {
     .Call(`_R2sample_repC`, x, times)
-}
-
-f <- function() {
-    invisible(.Call(`_R2sample_f`))
-}
-
-test <- function(g) {
-    invisible(.Call(`_R2sample_test`, g))
 }
 
 #' run test using either simulation or permutation.

@@ -160,18 +160,14 @@ If the routine is written in Rcpp parallel programming is not available.
 
 For all the tests except the chi square variants the p values are found via the permutation method. The idea of a permutation test is simple. Say we have data sets $x_1,..,x_n$ and $y_1,..,y_m$. They are combined into one large data set, permuted and split again in sets of sizes n and m. Under the null hypothesis these new data sets come from the same distribution as the actual data. Therefore calculating the tests statistics for them and repeating many times one can build up the distributions of the test statistics and find p values from them. 
 
-In the discrete case the situation is somewhat more complicated. Say we have data sets with values $v_1,..,v_k$ and counts $x_1,..,x_n$, $y_1,..,y_k$.  One can then mimic the description above by expanding these to yield a large data set with $x_1+y_1$ $v_1$'s, $x_2+y_2$ $v_2$'s and so on. Then this vector is permuted and split as described above. The drawback of this sampling method is that its calculation speed increases with the sample size.
+In the discrete case the situation is somewhat more complicated. Say we have data sets with values $v_1,..,v_k$ and counts $x_1,..,x_n$, $y_1,..,y_k$.  One can then mimic the description above by expanding these to yield a large data set with $x_1+y_1$ $v_1$'s, $x_2+y_2$ $v_2$'s and so on. Then this vector is permuted and split as described above. This method is used with the argument *samplingmethod="independence"*. The drawback of this sampling method is that its calculation speed increases with the sample size.
+
 Alternatively R2sample provides the following option. One can show that the distribution of the permuted data sets has the following distribution: let $n=\sum x_i$ and $m=\sum y_i$, then
 
 $$P(X=a|x,y)=\frac{\prod_{j=1}^k{{x_j+y_j}\choose{a_j}}}{{n+m}\choose{n}}$$
-for any $a$ such that $0\le a_i \le x_i; i=1,..,k$ and $\sum a=n$. Sampling from this distribution can be done using MCMC. R2sample uses the Metropolis-Hastings algorithm as follows: in each step two coordinates $i$ and $j$ with $1\le i,j \le k, i\ne j$ are chosen randomly. Then the proposal $a_i=x_i+1, a_j=x_j-1, b_i=y_i-1, b_j=y_j+1$, $a=x, b=y$ is accepted with probability
+for any $a$ such that $0\le a_i \le x_i; i=1,..,k$ and $\sum a=n$. Sampling from this distribution can be done as follows: set $p=\sum x_i/\sum (x_i+y_i)$, the overall percentage of the data in the x data set. Next generate a new count $x^{*}_i$ for the $i^{th}$ bin with $X^*_i\sim Binom(x_i+y_i,p)$, $i=1,..,k$. If $\sum x_i \ne \sum x^{*}_i$, randomly select a bin according to the probabilities $(x_1+y_1,..,x_k+y_k)$ and add or subtract 1 from $x^{*}_i$ as needed. Repeat this until $\sum x_i = \sum x^{*}_i$.
 
-$$\frac{P(X=a|x,y)}{P(X=x|x,y)}=\frac{(x_i+y_i-a_i)a_j}{(x_j+y_j+1-a_j)(a_i+1)}$$
-As is generally the case with MCMC simulation one needs a larger number of simulations than with independence sampling. The default is independence sampling size with a simulation size of 5000 for testing and (1000, 1000) for power estimation. If the sample sizes are very large this might run quite slowly and it might be advisable to change to samplingmethod="MCMC".  
-
-Of course MCMC sampling suffers from the usual issues of having to reach the stationary distribution. In the current situation a two-sample test is likely only done if the two data sets are reasonably close, and so the MCMC algorithm should start essentially at the stationary distribution and no burn-in period is required. 
-
-On a standard pc (as of 2024) independence sampling of two data sets with 10000 observation each takes only a few seconds and so is perfectly doable. 
+The default is Binomial sampling with a simulation size of 5000 for testing and 1000 for power estimation. 
 
 ## Parametric Bootstrap
 
@@ -344,7 +340,7 @@ Say we wish to find the powers of the tests when one data set comes from a stand
 
 ```{r eval=FALSE}
 plot_power(twosample_power(
-  f=function(df) list(x=rnorm(100), y=rt(200, df)), df=1:10)
+  f=function(df) list(x=rnorm(100), y=rt(200, df))
 )
 ```
 

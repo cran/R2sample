@@ -2,7 +2,7 @@
 % Please edit documentation in R/twosample_test.R
 \name{twosample_test}
 \alias{twosample_test}
-\title{This function runs a number of two sample tests using Rcpp and parallel computing.}
+\title{Tests for the univariate two-sample problem}
 \usage{
 twosample_test(
   x,
@@ -17,7 +17,7 @@ twosample_test(
   minexpcount = 5,
   maxProcessor,
   UseLargeSample,
-  samplingmethod = "independence",
+  samplingmethod = "Binomial",
   rnull,
   SuppressMessages = FALSE,
   doMethods = "all"
@@ -48,19 +48,22 @@ twosample_test(
 
 \item{UseLargeSample}{should p values be found via large sample theory if n,m>10000?}
 
-\item{samplingmethod}{="independence" or "MCMC" for discrete data}
+\item{samplingmethod}{="Binomial" or "independence" for discrete data}
 
 \item{rnull}{a function that generates data from a model, possibly with parameter estimation.}
 
 \item{SuppressMessages}{= FALSE print informative messages?}
 
-\item{doMethods}{="all" Which methods should be included? If missing all methods are used.}
+\item{doMethods}{="all" a vector of codes for the methods to include. If "all", all methods are used.}
 }
 \value{
 A list of two numeric vectors, the test statistics and the p values.
 }
 \description{
 This function runs a number of two sample tests using Rcpp and parallel computing.
+}
+\details{
+For details consult vignette("R2sample","R2sample")
 }
 \examples{
  R2sample::twosample_test(rnorm(1000), rt(1000, 4), B=1000)
