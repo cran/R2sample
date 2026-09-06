@@ -6,6 +6,7 @@ knitr::opts_chunk$set(
 
 ## ----setup--------------------------------------------------------------------
 library(R2sample)
+library(ggplot2)
 
 ## -----------------------------------------------------------------------------
 set.seed(123)
@@ -104,33 +105,26 @@ ggplot2::ggplot(data=dta, ggplot2::aes(x=x,y=y,col=Tests))+
   ggplot2::scale_color_manual(values=c("blue","red", "Orange", "green"))
 
 ## -----------------------------------------------------------------------------
-chitest = function(x, y, TSextra) {
-   nbins=TSextra$nbins
-   nx=length(x);ny=length(y);n=nx+ny
-   xy=c(x,y)
-   bins=quantile(xy, (0:nbins)/nbins)
-   Ox=hist(x, bins, plot=FALSE)$counts
-   Oy=hist(y, bins, plot=FALSE)$counts
-   tmp=sqrt(sum(Ox)/sum(Oy))
-   chi = sum((Ox/tmp-Oy*tmp)^2/(Ox+Oy))
-   pval=1-pchisq(chi, nbins-1)
-   out=ifelse(TSextra$statistic,chi,pval)
-   names(out)="ChiSquare"
-   out
-}
-TSextra=list(nbins=5,statistic=FALSE)
+f=R2sample::case_studies("uniform", "mean", n=1e4)
+x=0:100/100
+dta=data.frame(x=c(x,x), 
+               y=c(f$dnull(x), R2sample::funs_list[["cont"]][["uniform"]][["mean"]]$density(x)),
+          Distribution=rep(c("Uniform", 
+                           "Alternative"), each=101))
+ggplot(dta, aes(x, y, col=Distribution)) +
+  geom_line() +
+  scale_y_continuous(limits = c(0, 2)) +
+  labs(y="Density")
 
 ## -----------------------------------------------------------------------------
-pwr=R2sample::run.studies(chitest, "uniform.linear", TSextra=TSextra, With.p.value = TRUE)
-R2sample::plot_power(pwr, "slope")
+TSextra=list(nbins=5, statistic=FALSE)
+R2sample::run.studies(1:2, 1:2,  
+        TS=R2sample::myTS_cont, TSextra=TSextra, 
+        With.p.value = TRUE)
+
+## -----------------------------------------------------------------------------
+R2sample::case_studies("noncentral")[2:4]
 
 ## ----eval=FALSE---------------------------------------------------------------
-# R2sample::run.studies(chitest, TSextra=TSextra, With.p.value=TRUE)
-
-## ----eval=FALSE, message=FALSE------------------------------------------------
-# R2sample::run.studies(TRUE, # continuous data/model
-#         study=c("uniform.linear", "uniform.quadratic"),
-#         param_alt=list(c(0.1, 0.2), 1.3),
-#         nsample=2000,
-#         alpha=0.1)
+# R2sample::run.studies(TS=myTS_cont, TSextra=TSextra, With.p.value=TRUE)
 

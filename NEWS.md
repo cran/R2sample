@@ -1,3 +1,11 @@
+# R2sample 5.0.0
+               Added 80 new case studies and revamped run.studies routine. 
+               A number of minor bug fixes.
+               Added a testthat suite
+               
+# R2sample 4.1.1
+               Minor bug fixes    
+               
 # R2sample 4.1.0
                User supplied routine can now also return p value for twosample_power
                Some other minor changes

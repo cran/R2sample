@@ -140,8 +140,8 @@ myTS2 <- function(x, y, vals) {
 #' 
 #' @param rxy a function that generates x and y data.
 #' @param TS routine to calculate test statistics for non-chi-square tests
-#' @param xparam  arguments for r1.
-#' @param yparam  arguments for r2.
+#' @param xparam  first argument for rxy.
+#' @param yparam  second argument for rxy.
 #' @param typeTS indicator for type of test statistics
 #' @param TSextra additional info passed to TS, if necessary
 #' @param B =1000 number of simulation runs

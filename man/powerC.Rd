@@ -9,9 +9,9 @@ powerC(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L)
 \arguments{
 \item{rxy}{a function that generates x and y data.}
 
-\item{xparam}{arguments for r1.}
+\item{xparam}{first argument for rxy.}
 
-\item{yparam}{arguments for r2.}
+\item{yparam}{second argument for rxy.}
 
 \item{TS}{routine to calculate test statistics for non-chi-square tests}
 

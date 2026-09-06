@@ -36,9 +36,11 @@
 #'  myTS=function(x,y) {z=c(mean(x)-mean(y),sd(x)-sd(y));names(z)=c("M","S");z}
 #'  cbind(twosample_power(f1, mu=c(0,2), TS=myTS,B=100, maxProcessor = 1),
 #'        twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1))
-#'  # Power estimation if routine returns a p value
+#'  # Power estimation if routine returns a p value, using two parameters for 
+#'  #  the alternative
+#'  f3=function(mu, n) list(x=rnorm(25), y=rnorm(n, mu))
 #'  myTS2=function(x, y) {out=ks.test(x,y)$p.value; names(out)="KSp"; out}      
-#'  twosample_power(f1, c(0,1), TS=myTS2, With.p.value = TRUE,  B=100)
+#'  twosample_power(f3, c(0,1), c(25, 30), TS=myTS2, With.p.value = TRUE,  B=100)
 #'  
 twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE, 
             alpha=0.05, B=1000, 
@@ -78,21 +80,19 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
     }
     if(length(avals)==1) {
       avals=rep(avals, length(bvals))
-      rnames=bvals   
     }    
     else {
       bvals=rep(bvals, length(avals))
-      rnames=avals
     }    
   }
-  else rnames=1:length(avals)
+
 # generate one data set as an example, do some setup 
   dta = rxy(avals[1], bvals[1])
   if(length(dta)<2 | length(dta)>4) {
     message("routine f has to create a list with 2 (continous data without weights), 3 (discrete data) or 4 (continous data with weights)")
     return(NULL)
   }
-  if( (!("x"%in%names(dta))) | (!("x"%in%names(dta))) ) {
+  if( (!("x"%in%names(dta))) | (!("y"%in%names(dta))) ) {
     message("routine f has to create a list with elements named x and y, vals (optional, for discrete data) , wx and wy (optional, for continuous weighted data")
     return(NULL)
   }
@@ -112,10 +112,24 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
   if(!missing(rnull)) TSextra=c(TSextra, rnull=rnull)
   CustomTS=ifelse(missing(TS), FALSE, TRUE)
   WithWeights=ifelse(all(c(wx,wy)==1), FALSE, TRUE)
-  if(!Continuous & missing(maxProcessor)) {
-     maxProcessor=1
-     if(!SuppressMessages) message("For discrete data only a single processor is used if maxProcessor is not specified")
-  }
+  m=parallel::detectCores(logical = FALSE)
+  available=max(1, m-1)
+  if(missing(maxProcessor)) {
+    if(!Continuous) {
+       maxProcessor=1
+       if(!SuppressMessages) message("For discrete data only a single processor is used if maxProcessor is not specified")
+    }
+    if(Continuous) {
+    #  set number of processors for parallel programming
+       maxProcessor=available
+       if(!SuppressMessages) 
+         message(paste0("Using ", maxProcessor, " cores"))
+    }
+  } 
+  if(maxProcessor>m-1) maxProcessor=available
+  # assure that B is a multiple of maxProcessor      
+  B=ceiling(B/maxProcessor)*maxProcessor
+
   if(min(wx, wy)<0.01 | max(wx, wy)>5)
       if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
   if(missing(UseLargeSample)) {
@@ -192,9 +206,6 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
   }   
 
 # Run tests for power
-  if(missing(maxProcessor) & Continuous) {
-       maxProcessor=max(1, parallel::detectCores(logical = FALSE)-1)
-  }   
   if(UseLargeSample) {
        if(!SuppressMessages) message("Using methods with large sample theories")
        if(maxProcessor==1) { # no parallel processing 
@@ -202,9 +213,10 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
        }
        else {
           cl <- parallel::makeCluster(maxProcessor)
+          on.exit(parallel::stopCluster(cl), add=TRUE)
           z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
               alpha=alpha, B=round(B/maxProcessor) , xparam=avals, yparam=bvals)
-          parallel::stopCluster(cl)  
+          
           # Average power over cores  
           pwr=z[[1]]
           for(i in 2:maxProcessor) pwr=pwr+z[[i]]
@@ -213,12 +225,14 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
   }    
   else {
     if(With.p.value) {
-       pwr=power_newtest(TS, f, avals, TSextra, alpha, B)
+       pwr=power_newtest(TS, rxy, xparam=avals, yparam=bvals ,
+                         TSextra, alpha, B)
     }
     else {
        pwr=powerR(rxy=rxy, xparam=avals, yparam=bvals, TS=TS, typeTS, 
                TSextra, alpha=alpha, B=B,
-               SuppressMessages = SuppressMessages, maxProcessor=maxProcessor)
+               SuppressMessages = SuppressMessages,
+               maxProcessor=maxProcessor)
     }
   }  
   if(UseLargeSample) {
@@ -226,12 +240,9 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
                      "ES large", "ES small" , "EP large", "EP small")
   }  
   else colnames(pwr) = methodnames
-  rownames(pwr) = rnames
   if(!CustomTS) pwr = cbind(pwr, pwrchi)
-  if(nrow(pwr)==1) {
-    nm=colnames(pwr) 
-    pwr=c(pwr)
-    names(pwr)=nm
-  }  
+  if(length(list(...))==0) rownames(pwr)=NULL
+  if(length(list(...))==1) rownames(pwr)=avals
+  if(length(list(...))==2) rownames(pwr)=paste0(avals,"|",bvals)  
   round(pwr, 3)
 }

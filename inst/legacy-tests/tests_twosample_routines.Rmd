@@ -1,0 +1,172 @@
+---
+title: "Tests for Routines in R2sample Package"
+author: "Dr. Wolfgang Rolke"
+date: "2023-12-03"
+output:
+  html_document:
+    df_print: paged
+  pdf_document:
+    keep_tex: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error=TRUE)
+library(R2sample)
+st=function() knitr::knit_exit()
+B=1000
+```
+
+## Tests and Power - Continuous Data Without Weights
+
+```{r}
+myTSc1 = function(x, y) {
+  out=abs(mean(x)-mean(y))
+  names(out)="Mean"
+  out
+}
+myTSc2 = function(x, y, TSextra) {
+  xtmp=diff(TSextra$quant(x))
+  ytmp=diff(TSextra$quant(y))
+  out=c(abs(median(x)-median(y)),abs(xtmp-ytmp))
+  names(out)=c("Median", "IQR")
+  out
+}
+TSextra=list(quant=function(x) quantile(x, c(0.25, 0.75)))
+hybrid=function(mu) {
+   x=rnorm(100,mu)
+   list(x=x, y=rnorm(120,mean(x),sd(x)))
+}
+rnull=function(dta) {
+   list(x=dta$x,y=rnorm(120,mean(dta$x),sd(dta$x)))
+}
+```
+
+```{r}
+dta=hybrid(0)
+x = dta$x
+y = dta$y
+twosample_test(dta, B=B)
+twosample_test(x, y, B=B)
+twosample_test(x, y, B=B, doMethod = c("KS", "AD"))
+twosample_test(x, y, rnull=rnull, B=B)
+twosample_test(x, y, TS=myTSc1, B=B)
+twosample_test(x, y, TS=myTSc2, TSextra=TSextra, B=B)
+```
+
+
+
+```{r adj}
+twosample_test_adjusted_pvalue(dta, B=B)
+```
+
+```{r}
+f = function(m) list(x=rnorm(100), y=rnorm(120, m))
+twosample_power(f, c(0, 0.5), B=B)
+twosample_power(f, c(0, 0.5), TS=myTSc1, B=B)
+twosample_power(f, c(0, 0.5), TS=myTSc2, TSextra=TSextra,B=B)
+twosample_power(hybrid, c(0, 0.5), rnull=rnull, B=B)
+twosample_power(hybrid, c(0, 0.5), rnull=rnull, 
+                TS=myTSc2, TSextra=TSextra, B=B)
+```
+
+
+## Tests and Power - Discrete Data without Weights
+
+```{r}
+myTSd1 = function(x, y, vals) {
+  out=abs(mean(x*vals)-mean(y*vals))
+  names(out)="D"
+  out
+}
+myTSd2 = function(x, y, vals, TSextra) {
+  xtmp=TSextra$quant(rep(vals,x))
+  ytmp=TSextra$quant(rep(vals,y))
+  out=c(abs(median(x*vals)-median(y*vals)),abs(xtmp-ytmp))
+  names(out)=c("Median", "IQR")
+  out
+}
+TSextra=list(quant=function(x) diff(quantile(x, c(0.25, 0.75))))
+hybrid=function(p) {
+   x=table(c(0:5,rbinom(500, 5, p)))-1
+   phat=mean(rep(0:5,x))/5
+   list(x=x, 
+        y=table(c(0:5,rbinom(600, 5, phat)))-1, 
+        vals=0:5)
+}
+f = function(p) {
+  vals=0:5
+  x = table(c(0:5, rbinom(500, 5, 0.5)))-1
+  y = table(c(0:5, rbinom(600, 5, p)))-1
+  list(x=x, y=y, vals=vals)  
+}
+dta=f(0.5)
+x=dta$x;y=dta$y;vals=0:5
+rnull=function(dta) {
+   phat=mean(rep(0:5,dta$x))/5
+   list(x=dta$x, 
+        y=table(c(0:5,rbinom(600, 5, phat)))-1, 
+        vals=0:5)
+}
+```
+
+```{r}
+twosample_test(dta, B=B)
+twosample_test(x, y, vals, B=B)
+twosample_test(x, y, vals, rnull=rnull, B=B)
+twosample_test(x, y, vals, B=B, doMethod = c("KS", "AD"))
+twosample_test(x, y, vals, TS=myTSd1, B=B)
+twosample_test(x, y, vals, TS=myTSd2, TSextra=TSextra, B=B)
+```
+
+```{r}
+twosample_test_adjusted_pvalue(dta, B=B)
+```
+
+```{r}
+twosample_power(f, c(0.5, 0.6), B=B)
+twosample_power(hybrid, c(0.5, 0.6), rnull=rnull, B=B)
+twosample_power(f, c(0.5, 0.6), TS=myTSd1, B=B)
+twosample_power(f, c(0.5, 0.6), TS=myTSd2, TSextra=TSextra,B=B)
+```
+
+## Tests and Power - Continuous Data With Weights
+
+```{r}
+t=seq(-5,5,length=250)
+w=function(x) dnorm(x)/dt(x, 3)
+plot(t, w(t),type="l")
+```
+
+
+```{r}
+x=rnorm(100)
+wx=rep(1, length(x))
+y=rt(120, 3)
+wy=w(y)
+twosample_test(x, y, wx=wx, wy=wy, B=B)
+f=function(m) {
+  x=rnorm(100, m)
+  wx=rep(1, length(x))
+  y=rt(200, 3)
+  y=y[abs(y)<5][1:120]
+  wy=dnorm(y)/dt(y, 3)
+  list(x=x, y=y, wx=wx, wy=wy)
+}
+twosample_power(f, m=c(0, 0.5, 1), B=B)
+```
+
+## run.studies
+
+The new tests are simple chisquare tests, either with or without p value:
+
+```{r}
+TSextra=list(nbins=5, statistic=FALSE)
+run.studies(1:2, 1:2, TS=myTS_cont, TSextra=TSextra, 
+    data_type="cont",With.p.value=TRUE, 
+    SuppressMessages = TRUE, B=100)
+TSextra=list(nbins=5, statistic=TRUE)
+run.studies(1:2, 1:2, TS=myTS_disc, TSextra=TSextra, 
+    data_type="disc", SuppressMessages = TRUE, B=100)
+
+```
+

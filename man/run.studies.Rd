@@ -5,44 +5,41 @@
 \title{Power Comparisons}
 \usage{
 run.studies(
+  studies = 1:40,
+  types = 1:5,
+  data_type = "cont",
   TS,
-  study,
   TSextra,
   With.p.value = FALSE,
-  BasicComparison = TRUE,
-  nsample = 500,
+  n = 500,
   alpha = 0.05,
-  param_alt,
-  maxProcessor,
-  SuppressMessages = FALSE,
-  B = 1000
+  B = 1000,
+  SuppressMessages = TRUE
 )
 }
 \arguments{
-\item{TS}{routine to calculate test statistics.}
+\item{studies}{=1:40, either the names of the studies, or their numbers. If missing all the studies are run.}
 
-\item{study}{either the name of the study, or its number. If missing all the studies are run.}
+\item{types}{=1:5, either the types of studies, or their numbers. If missing all types are run.}
+
+\item{data_type}{="cont", continuous or discrete data}
+
+\item{TS}{routine to calculate test statistics.}
 
 \item{TSextra}{list passed to TS.}
 
 \item{With.p.value}{=FALSE does user supplied routine return p values?}
 
-\item{BasicComparison}{=TRUE if true compares tests on one default value of parameter of the alternative distribution.}
-
-\item{nsample}{= 500, desired sample size.}
+\item{n}{= 500, desired sample size.}
 
 \item{alpha}{=0.05  type I error}
 
-\item{param_alt}{(list of) values of parameter under the alternative hypothesis. If missing included values are used.}
-
-\item{maxProcessor}{number of cores to use for parallel programming}
-
-\item{SuppressMessages}{= FALSE print informative messages?}
-
 \item{B}{= 1000}
+
+\item{SuppressMessages}{= TRUE}
 }
 \value{
-A (list of ) matrices of power values.
+A matrix of power values.
 }
 \description{
 This function runs the case studies included in the package and compares the
@@ -52,21 +49,6 @@ power of a new test to those included.
 For details consult vignette("R2sample","R2sample")
 }
 \examples{
-#The new test is a simple chisquare test:
-chitest = function(x, y, TSextra) {
-   nbins=TSextra$nbins
-   nx=length(x);ny=length(y);n=nx+ny
-   xy=c(x,y)
-   bins=quantile(xy, (0:nbins)/nbins)
-   Ox=hist(x, bins, plot=FALSE)$counts
-   Oy=hist(y, bins, plot=FALSE)$counts
-   tmp=sqrt(sum(Ox)/sum(Oy))
-   chi = sum((Ox/tmp-Oy*tmp)^2/(Ox+Oy))
-   pval=1-pchisq(chi, nbins-1)
-   out=ifelse(TSextra$statistic,chi,pval)
-   names(out)="ChiSquare"
-   out
-}
-TSextra=list(nbins=5,statistic=FALSE) # Use 5 bins and calculate p values
-run.studies(chitest,TSextra=TSextra, With.p.value=TRUE, B=100)
+TSextra=list(nbins=5, statistic=FALSE) # Use 5 bins and calculate p values
+run.studies(1:2, 1:2, TS=myTS_cont, TSextra=TSextra, With.p.value=TRUE, B=100)
 }

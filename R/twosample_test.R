@@ -136,9 +136,13 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
       }  
     }
 
-#  set number of processors for parallel programming
-    m=parallel::detectCores(logical = FALSE) 
-    if(maxProcessor>1) maxProcessor=min(maxProcessor, m-1)
+#  set number of processors for parallel programming, assure
+#  that B is a multiple of maxProcessor    
+    m=parallel::detectCores(logical=FALSE)
+    available=max(1, m-1)
+    if(missing(maxProcessor)) maxProcessor=available
+    if(maxProcessor>m-1) maxProcessor=available
+    B=ceiling(B/maxProcessor)*maxProcessor
     
 # Check whether continuous data has many ties
     if(Continuous) {
@@ -180,20 +184,21 @@ twosample_test=function(x, y, vals=NA, TS, TSextra, wx=rep(1, length(x)),
     else {
 # run testC in parallel. Use one less core than is present, at most maxProcessor.    
       cl=parallel::makeCluster(maxProcessor)
+      on.exit(parallel::stopCluster(cl), add=TRUE)
       z=parallel::clusterCall(cl, testC, dta=dta, 
-                      TS=TS, typeTS=typeTS, TSextra=TSextra, B= round(B/m))
-      parallel::stopCluster(cl)
+                      TS=TS, typeTS=typeTS, TSextra=TSextra, 
+                      B= round(B/maxProcessor))
 # average p values over cores    
       p=z[[1]]$p.values
-      for(i in 2:m) p=p+z[[i]]$p.values
-      p = round(p/m, 4)  
+      for(i in 2:length(z)) p=p+z[[i]]$p.values
+      p = round(p/length(z), 4)  
       outTS = list(statistics=z[[1]]$statistics, p.values=p)
     }
-    if(CustomTS) return(signif.digits(outTS))
+    if(CustomTS) return(signif_digits(outTS))
     s = c(outTS$statistics, outchi$statistics)
     p = c(outTS$p.values, outchi$p.values)
     out = list(statistics=s, p.values=p)
-    out=signif.digits(out)
+    out=signif_digits(out)
     if(doMethods[1]=="all") return(out)
     if(typeTS%in%c(2,6)) return(out)
     if(doMethods[1]=="default") {

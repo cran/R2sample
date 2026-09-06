@@ -1,17 +1,26 @@
 #' Power for tests with p values
 #' 
 #' This function estimates the power of test routines that calculate p value(s)
+#'
 #' @param TS routine to calculate test statistics.
 #' @param f routine that generates data.
-#' @param param_alt values of parameter under the alternative hypothesis. 
+#' @param xparam values of first parameter under the alternative hypothesis. 
+#' @param yparam values of second parameter under the alternative hypothesis.  
 #' @param TSextra list passed to TS.
 #' @param alpha =0.05  type I error.
 #' @param B = 1000 number of simulation runs to estimate the power.
 #' @return A matrix of power values
 
-power_newtest <- function(TS, f, param_alt, TSextra, alpha=0.05, B=1000) {
+power_newtest <- function(TS, f, xparam, yparam, TSextra, alpha=0.05, B=1000) {
      Continuous=ifelse("vals" %in% names(formals(TS)), FALSE, TRUE) 
-     dta=f(param_alt[1])
+     if(length(formals(f)) == 0) {
+       dta = f()
+     } else if(length(formals(f)) == 1) {
+       dta = f(xparam[1])
+     } else if(length(formals(f)) == 2) {
+       dta = f(xparam[1], yparam[1])
+     }
+     
      if(Continuous) {
         if(length(formals(TS))==2) tmp=TS(dta$x, dta$y)
         else tmp=TS(dta$x, dta$y, TSextra)
@@ -20,12 +29,16 @@ power_newtest <- function(TS, f, param_alt, TSextra, alpha=0.05, B=1000) {
        if(length(formals(TS))==3) tmp=TS(dta$x, dta$y, dta$vals)
         else tmp=TS(dta$x, dta$y, dta$vals, TSextra)
      } 
-     pwr=matrix(0, length(param_alt), length(TS))
-     rownames(pwr)=param_alt
-     colnames(pwr)=names(tmp)
-     for(j in 1:length(param_alt)) {
+     pwr=matrix(0, length(xparam), length(tmp))
+     for(j in seq_along(xparam)) {
         for(i in 1:B) {
-          dta=f(param_alt[j])
+          if(length(formals(f)) == 0) {
+            dta = f()
+          } else if(length(formals(f)) == 1) {
+            dta = f(xparam[1])
+          } else if(length(formals(f)) == 2) {
+            dta = f(xparam[1], yparam[1])
+          }
           if(Continuous) {
             if(length(formals(TS))==2) tmp=TS(dta$x, dta$y)
              else tmp=TS(dta$x, dta$y, TSextra)

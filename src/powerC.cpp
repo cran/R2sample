@@ -8,8 +8,8 @@ using namespace Rcpp;
 //' 
 //' @param rxy a function that generates x and y data.
 //' @param TS routine to calculate test statistics for non-chi-square tests
-//' @param xparam  arguments for r1.
-//' @param yparam  arguments for r2.
+//' @param xparam  first argument for rxy.
+//' @param yparam  second argument for rxy.
 //' @param typeTS indicator for type of test statistics
 //' @param TSextra additional info passed to TS, if necessary
 //' @param B =1000 number of simulation runs
@@ -22,9 +22,8 @@ List powerC(Function rxy,
             Function TS,
             int typeTS,
             List TSextra,
-           int B=1000) { 
+            int B=1000) { 
 /* Find out how many tests are to be done, sample sizes etc. */  
-  
   int j,l, m, nl=xparam.size();
   NumericVector TS_data;
   List dta=rxy(xparam(0),yparam(0));
@@ -35,7 +34,8 @@ List powerC(Function rxy,
   TS_data = calcTS(dta, TS, typeTS, TSextra);
   int const nummethods=TS_data.size();
   int cn=-1;
-  NumericMatrix realdta(B*nl, 1+nummethods), simdta(B*nl, 1+nummethods);
+  NumericMatrix realdta(B*nl, nummethods), simdta(B*nl, nummethods), 
+                paramalt(B*nl,2);
   NumericVector TS_sim(nummethods);
 /*l loop over values in xparam */  
   for(l=0;l<nl;++l) {
@@ -49,17 +49,18 @@ List powerC(Function rxy,
         TSextra["adw"]=adw;
       }
       TS_data = calcTS(dta, TS, typeTS, TSextra);
-      realdta(cn,0)=xparam(l);
-      for(j=0;j<nummethods;++j) realdta(cn,j+1)=TS_data(j);
+      paramalt(cn,0)=xparam(l);
+      paramalt(cn,1)=yparam(l);
+      for(j=0;j<nummethods;++j) realdta(cn,j)=TS_data(j);
       GetRNGstate();
       List tmp=gen_sim_data(dta, TSextra);
       PutRNGstate();
       TS_sim = calcTS(tmp, TS, typeTS, TSextra);
-      simdta(cn,0)=xparam(l);
-      for(j=0;j<nummethods;++j) simdta(cn,j+1)=TS_sim(j);
+      for(j=0;j<nummethods;++j) simdta(cn,j)=TS_sim(j);
     }
   }
   return List::create(Named("Data")=realdta, 
-               Named("Simulated")=simdta);
+               Named("Simulated")=simdta,
+               Named("paramalt")=paramalt);
 }
 

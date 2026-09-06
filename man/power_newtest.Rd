@@ -4,14 +4,16 @@
 \alias{power_newtest}
 \title{Power for tests with p values}
 \usage{
-power_newtest(TS, f, param_alt, TSextra, alpha = 0.05, B = 1000)
+power_newtest(TS, f, xparam, yparam, TSextra, alpha = 0.05, B = 1000)
 }
 \arguments{
 \item{TS}{routine to calculate test statistics.}
 
 \item{f}{routine that generates data.}
 
-\item{param_alt}{values of parameter under the alternative hypothesis.}
+\item{xparam}{values of first parameter under the alternative hypothesis.}
+
+\item{yparam}{values of second parameter under the alternative hypothesis.}
 
 \item{TSextra}{list passed to TS.}
 

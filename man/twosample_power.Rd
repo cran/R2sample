@@ -75,8 +75,10 @@ either discrete or continuous. The user can also provide their own test method.
  myTS=function(x,y) {z=c(mean(x)-mean(y),sd(x)-sd(y));names(z)=c("M","S");z}
  cbind(twosample_power(f1, mu=c(0,2), TS=myTS,B=100, maxProcessor = 1),
        twosample_power(f1, mu=c(0,2), B=100, maxProcessor = 1))
- # Power estimation if routine returns a p value
+ # Power estimation if routine returns a p value, using two parameters for 
+ #  the alternative
+ f3=function(mu, n) list(x=rnorm(25), y=rnorm(n, mu))
  myTS2=function(x, y) {out=ks.test(x,y)$p.value; names(out)="KSp"; out}      
- twosample_power(f1, c(0,1), TS=myTS2, With.p.value = TRUE,  B=100)
+ twosample_power(f3, c(0,1), c(25, 30), TS=myTS2, With.p.value = TRUE,  B=100)
  
 }
