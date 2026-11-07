@@ -7,40 +7,137 @@
 #' @param x numeric vector
 #' @keywords internal
 #' @return numeric vector
+#' @noRd
 Cpporder <- function(y, x) {
     .Call(`_R2sample_Cpporder`, y, x)
 }
 
+#' Epps-Singleton test statistic and its degrees of freedom
+#'
+#' @param x first continuous data set, or the counts of the first data set
+#' @param y second continuous data set, or the counts of the second data set
+#' @param vals values of discrete data, NULL for continuous data
+#' @keywords internal
+#' @return vector with the statistic and the degrees of freedom of its
+#'   asymptotic chi-square null distribution
+#' @noRd
+EppsS <- function(x, y, vals = NULL) {
+    .Call(`_R2sample_EppsS`, x, y, vals)
+}
+
+#' Sizes of the atoms of the HHG test for continuous data
+#' @param N total sample size
+#' @param A number of atoms
+#' @keywords internal
+#' @return integer vector of length A
+#' @noRd
+HHG_atoms <- function(N, A) {
+    .Call(`_R2sample_HHG_atoms`, N, A)
+}
+
+#' Null distribution of the HHG statistics S_m
+#'
+#' The x-counts of the atoms are drawn from the multivariate hypergeometric
+#' distribution, which is their distribution under random relabeling of the
+#' pooled sample.
+#' @param t integer vector, number of observations in each atom
+#' @param nx size of the first sample
+#' @param mmax largest number of cells
+#' @param B number of simulation runs
+#' @keywords internal
+#' @return a B x (mmax-1) matrix, each column sorted increasingly, with attribute
+#'   "minp", the sorted null values of the combined statistic -log(min p)
+#' @noRd
+HHG_null <- function(t, nx, mmax, B) {
+    .Call(`_R2sample_HHG_null`, t, nx, mmax, B)
+}
+
+#' HHG statistics S_m for continuous data
+#' @param x first data set
+#' @param y second data set
+#' @param A number of atoms
+#' @param mmax largest number of cells
+#' @keywords internal
+#' @return numeric vector of S_m, m=2,..,mmax
+#' @noRd
+HHG_stats_cont <- function(x, y, A, mmax) {
+    .Call(`_R2sample_HHG_stats_cont`, x, y, A, mmax)
+}
+
+#' HHG statistics S_m for discrete data
+#' @param x counts of first data set
+#' @param y counts of second data set
+#' @param mmax largest number of cells
+#' @keywords internal
+#' @return numeric vector of S_m, m=2,..,mmax
+#' @noRd
+HHG_stats_disc <- function(x, y, mmax) {
+    .Call(`_R2sample_HHG_stats_disc`, x, y, mmax)
+}
+
+#' HHG test statistic for continuous data
+#' @param x first data set
+#' @param y second data set
+#' @param A number of atoms
+#' @param mmax largest number of cells
+#' @param nullsorted matrix from HHG_null
+#' @keywords internal
+#' @return the test statistic -log(min p)
+#' @noRd
+HHG_cont <- function(x, y, A, mmax, nullsorted) {
+    .Call(`_R2sample_HHG_cont`, x, y, A, mmax, nullsorted)
+}
+
+#' HHG test statistic for discrete data
+#' @param x counts of first data set
+#' @param y counts of second data set
+#' @param mmax largest number of cells
+#' @param nullsorted matrix from HHG_null
+#' @keywords internal
+#' @return the test statistic -log(min p)
+#' @noRd
+HHG_disc <- function(x, y, mmax, nullsorted) {
+    .Call(`_R2sample_HHG_disc`, x, y, mmax, nullsorted)
+}
+
 #' find test statistics for continuous data
-#' 
-#' @param x first continuous data set
-#' @param y second continuous data set
+#'
+#' @param x_input first continuous data set
+#' @param y_input second continuous data set
 #' @keywords internal
 #' @return A vector of test statistics
-TS_cont <- function(x, y) {
-    .Call(`_R2sample_TS_cont`, x, y)
+#' @noRd
+TS_cont <- function(x_input, y_input) {
+    .Call(`_R2sample_TS_cont`, x_input, y_input)
 }
 
 #' find test statistics for discrete data
-#' 
+#'
 #' @param x integer vector of data set 1
 #' @param y integer vector of data set 2
-#' @param vals numeric vector of values of discrete data set
-#' @param ADweights A vector of weights for AD method
+#' @param vals numeric vector of values of discrete data set, sorted increasingly
+#' @param ADweights A vector of weights for AD method, see weights()
 #' @keywords internal
 #' @return A vector of test statistics
+#' @noRd
 TS_disc <- function(x, y, vals, ADweights = as.numeric( c(2))) {
     .Call(`_R2sample_TS_disc`, x, y, vals, ADweights)
 }
 
 #' find test statistics for continuous data with weights
-#' 
+#'
+#' Weighted edfs Fx, Fy and weighted pooled edf H are used:
+#' KS and Kuiper are based on D=Fx-Fy,
+#' CvM = nm/N sum D^2 dH and AD = nm/N sum D^2 dH/(H(1-H)).
+#' With all weights equal these are identical to the statistics in TS_cont.
+#'
 #' @param x first continuous data set
 #' @param y second continuous data set
 #' @param wx weights of x
 #' @param wy weights of y
 #' @keywords internal
 #' @return A vector of test statistics
+#' @noRd
 TSw_cont <- function(x, y, wx, wy) {
     .Call(`_R2sample_TSw_cont`, x, y, wx, wy)
 }
@@ -54,6 +151,7 @@ TSw_cont <- function(x, y, wx, wy) {
 #' @param wy integer vector of weights
 #' @keywords internal
 #' @return A vector with test statistics
+#' @noRd
 TSw_disc <- function(x, y, vals, wx, wy) {
     .Call(`_R2sample_TSw_disc`, x, y, vals, wx, wy)
 }
@@ -64,6 +162,7 @@ TSw_disc <- function(x, y, vals, wx, wy) {
 #' @param bins numeric vector
 #' @keywords internal
 #' @return Integer vector of counts
+#' @noRd
 bincounter <- function(x, bins) {
     .Call(`_R2sample_bincounter`, x, bins)
 }
@@ -75,6 +174,7 @@ bincounter <- function(x, bins) {
 #' @param  TSextra list passed to TS function
 #' @keywords internal
 #' @return A vector of numbers
+#' @noRd
 calcTS <- function(dta, TS, typeTS, TSextra) {
     .Call(`_R2sample_calcTS`, dta, TS, typeTS, TSextra)
 }
@@ -84,6 +184,7 @@ calcTS <- function(dta, TS, typeTS, TSextra) {
 #' @param TSextra extra stuff
 #' @keywords internal
 #' @return A list of permuted vectors
+#' @noRd
 gen_sim_data <- function(dta, TSextra) {
     .Call(`_R2sample_gen_sim_data`, dta, TSextra)
 }
@@ -98,6 +199,7 @@ getI <- function(p) {
 #' @param TSextra extra stuff
 #' @keywords internal
 #' @return A list of permuted vectors
+#' @noRd
 gen_cont_noweights <- function(x, y, TSextra) {
     .Call(`_R2sample_gen_cont_noweights`, x, y, TSextra)
 }
@@ -110,6 +212,7 @@ gen_cont_noweights <- function(x, y, TSextra) {
 #' @param TSextra extra stuff
 #' @keywords internal
 #' @return A list of permuted vectors
+#' @noRd
 gen_cont_weights <- function(x, y, wx, wy, TSextra) {
     .Call(`_R2sample_gen_cont_weights`, x, y, wx, wy, TSextra)
 }
@@ -121,6 +224,7 @@ gen_cont_weights <- function(x, y, wx, wy, TSextra) {
 #' @param TSextra extra stuff
 #' @keywords internal
 #' @return A list of permuted vectors
+#' @noRd
 gen_disc <- function(dtax, dtay, vals, TSextra) {
     .Call(`_R2sample_gen_disc`, dtax, dtay, vals, TSextra)
 }
@@ -147,6 +251,7 @@ myTS2 <- function(x, y, vals) {
 #' @param B =1000 number of simulation runs
 #' @keywords internal
 #' @return A list values of test statistics
+#' @noRd
 powerC <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
     .Call(`_R2sample_powerC`, rxy, xparam, yparam, TS, typeTS, TSextra, B)
 }
@@ -157,6 +262,7 @@ powerC <- function(rxy, xparam, yparam, TS, typeTS, TSextra, B = 1000L) {
 #' @param times integer vector
 #' @keywords internal
 #' @return A numeric vector
+#' @noRd
 repC <- function(x, times) {
     .Call(`_R2sample_repC`, x, times)
 }
@@ -170,6 +276,7 @@ repC <- function(x, times) {
 #' @param B =5000, number of simulation runs.
 #' @keywords internal
 #' @return A list with test statistics and p values
+#' @noRd
 testC <- function(dta, TS, typeTS, TSextra, B = 5000L) {
     .Call(`_R2sample_testC`, dta, TS, typeTS, TSextra, B)
 }
@@ -181,15 +288,22 @@ testC <- function(dta, TS, typeTS, TSextra, B = 5000L) {
 #' @param w numeric vector of weights 
 #' @keywords internal
 #' @return sum of weights in bins
+#' @noRd
 wbincounter <- function(x, bins, w) {
     .Call(`_R2sample_wbincounter`, x, bins, w)
 }
 
 #' find weights for several statistics for discrete data
-#' 
+#'
+#' For class i, occupying positions a,..,b of the combined sorted sample,
+#' the AD weight is sum (from a to b) 1/(l(N-l)), with l=N excluded.
+#' Uses sum 1/(l(N-l)) = (sum 1/l + sum 1/(N-l))/N and harmonic numbers
+#' H_m = digamma(m+1)+Euler's constant, so the cost is O(k), not O(N).
+#'
 #' @param dta A list with vectors x, y and vals.
 #' @keywords internal
 #' @return A vector of weights
+#' @noRd
 weights <- function(dta) {
     .Call(`_R2sample_weights`, dta)
 }

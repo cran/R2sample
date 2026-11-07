@@ -47,13 +47,14 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
       which_diff=alltypes[which_diff]
   
   if(which %in% list.of.studies[1:20]) {
+    apar=0
     if(missing(funs_list)) {
       funs = R2sample::funs_list[[data_type]][[which]][[which_diff]]
     } else {
       funs = funs_list
     }
-    ralt = function(n) funs$random(n)
-    palt = function(x) funs$cdf(x)
+    ralt = function(a=apar) funs$random(n)
+    palt = function(x, a=apar) funs$cdf(x)
   }
   if(data_type=="disc") {
      if(which%in% list.of.studies[c(1:10, 21:29)]) {
@@ -71,6 +72,12 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
     vals=(bins[-1]+bins[-(nbins+1)])/2 # midpoints of intervals
   }
  
+# sizes of mixture components that add up to n exactly
+  msizes=function(n, p) {
+    k=floor(n*p)
+    k[length(k)]=n-sum(k[-length(k)])
+    k
+  }
 # 1  
   if(which=="uniform") {
     rnull=function(n) runif(n)
@@ -87,11 +94,12 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
   if(which=="quadratic") {
      rnull=function(n) {
        a=-0.5
+       M=max(1-a/4, 1+a/2) # maximum of density
        x=rep(0,n)
        for(i in 1:n) {
          repeat {
            z=runif(1)
-           if(runif(1)<3*a*(z-1/2)^2+1-a/4) {
+           if(M*runif(1)<3*a*(z-1/2)^2+1-a/4) {
              x[i]=z
              break
            }
@@ -130,22 +138,26 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
 #8
   if(which=="triangular") {
     rnull=function(n) {
-      y=runif(0.35*n)
+      k=msizes(n, c(0.35, 0.65))
+      y=runif(k[1])
       y=ifelse(y<1/2, sqrt(y/2), 1-sqrt((1-y)/2))
-      c(y, runif(0.65*n))
+      c(y, runif(k[2]))
    }    
    dnull=function(x) 0.65*dunif(x)+0.35*ifelse(x<0.5, 4*x, 4-4*x)
    pnull=function(x) 0.65*punif(x)+0.35*ifelse(x<0.5, 2*x^2, 1-2*(1-x)^2)
   }    
 #9
   if(which=="uniformmixture") {
-    rnull=function(n) c(runif(n/6, 0, 1/3), runif(n/3,1/3,2/3), runif(n/2, 2/3, 1))
+    rnull=function(n) {
+      k=msizes(n, c(1/6, 1/3, 1/2))
+      c(runif(k[1], 0, 1/3), runif(k[2],1/3,2/3), runif(k[3], 2/3, 1))
+    }
     dnull=function(x) (dunif(x, 0, 1/3)+2*dunif(x,1/3,2/3)+3*dunif(x, 2/3, 1))/6
     pnull=function(x) (punif(x, 0, 1/3)+2*punif(x,1/3,2/3)+3*punif(x, 2/3, 1))/6
   }     
 #10
   if(which=="betamixture") {
-    rnull=function(n) c(runif(n/2), rbeta(n/2, 2, 2))
+    rnull=function(n) {k=msizes(n, c(1/2, 1/2)); c(runif(k[1]), rbeta(k[2], 2, 2))}
     dnull=function(x) (dunif(x)+dbeta(x, 2, 2))/2
     pnull=function(x) (punif(x)+pbeta(x, 2, 2))/2
   }
@@ -169,31 +181,37 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
   }
 #14
   if(which=="normal-mix3") {
-    rnull=function(n) c(rnorm(n/4, -3), rnorm(n/2), rnorm(n/4,5))
+    rnull=function(n) {
+      k=msizes(n, c(1/4, 1/2, 1/4))
+      c(rnorm(k[1], -3), rnorm(k[2]), rnorm(k[3],5))
+    }
     dnull=function(x) dnorm(x, -3)/4+dnorm(x)/2+dnorm(x, 5)/4
     pnull=function(x) pnorm(x, -3)/4+pnorm(x)/2+pnorm(x, 5)/4
   }
 #15  
   if(which=="normal-mix4") {
-    rnull=function(n) c(rnorm(n/2), rnorm(n/4, 0, 3), rnorm(n/4, 0, 5))
+    rnull=function(n) {
+      k=msizes(n, c(1/2, 1/4, 1/4))
+      c(rnorm(k[1]), rnorm(k[2], 0, 3), rnorm(k[3], 0, 5))
+    }
     dnull=function(x) (2*dnorm(x)+dnorm(x, 0, 3)+dnorm(x, 0, 5))/4
     pnull=function(x) (2*pnorm(x)+pnorm(x, 0, 3)+pnorm(x, 0, 5))/4
   }
 #16
   if(which=="gamma1") {
-    rnull=function(n) c(rexp(0.2*n, 1), rgamma(0.8*n, 2, 0.5))
+    rnull=function(n) {k=msizes(n, c(0.2, 0.8)); c(rexp(k[1], 1), rgamma(k[2], 2, 0.5))}
     dnull=function(x) 0.2*dexp(x, 1)+0.8*dgamma(x, 2, 0.5)
     pnull=function(x) 0.2*pexp(x, 1)+0.8*pgamma(x, 2, 0.5)
   }
 #17
   if(which=="gamma2") {
-    rnull=function(n) c(rgamma(0.2*n, 2, 2), rgamma(0.8*n, 3, 5))
+    rnull=function(n) {k=msizes(n, c(0.2, 0.8)); c(rgamma(k[1], 2, 2), rgamma(k[2], 3, 5))}
     dnull=function(x) 0.2*dgamma(x, 2, 2)+0.8*dgamma(x, 3, 5)
     pnull=function(x) 0.2*pgamma(x, 2, 2)+0.8*pgamma(x, 3, 5)
   }
 #18
   if(which=="gammamixture") {
-    rnull=function(n) c(rgamma(n/2, 2, 1), rgamma(n/2, 10,1))
+    rnull=function(n) {k=msizes(n, c(1/2, 1/2)); c(rgamma(k[1], 2, 1), rgamma(k[2], 10,1))}
     dnull=function(x) (dgamma(x, 2, 1)+dgamma(x, 10,1))/2
     pnull=function(x) (pgamma(x, 2, 1)+pgamma(x, 10,1))/2
   }
@@ -212,24 +230,35 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
   }
 #21
   if(which=="uniform-linear") {
+    apar=0.2
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    ralt=function(n) 10/6*(-0.7+sqrt(0.49+1.2*runif(n)))
-    palt=function(x) 0.3*x^2+0.7*x
+    ralt=function(a=apar) {
+      if(a==0) return(runif(n))
+      (-(1-a)+sqrt((1-a)^2+4*a*runif(n)))/2/a
+    }
+    palt=function(x, a=apar) {
+      if(a==0) return(punif(x))
+      ifelse(x<0, 0,
+             ifelse(x>1, 1,
+                    a*x^2+(1-a)*x))
+    }
   }
 #22
   if(which=="uniform-quadratic") {
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    a=ifelse(data_type=="cont", -1.2, -1)
-    ralt=function(n) {
+    apar=ifelse(data_type=="cont", -1.2, -1)
+    ralt=function(a=apar) {
+      if(a==0) return(runif(n))
+      M=max(1-a/4, 1+a/2) # maximum of density
       x=rep(0,n)
       for(i in 1:n) {
         repeat {
           z=runif(1)
-          if(runif(1)<3*a*(z-1/2)^2+1-a/4) {
+          if(M*runif(1)<3*a*(z-1/2)^2+1-a/4) {
             x[i]=z
             break
           }
@@ -237,203 +266,234 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
       }
       x
     }   
-    palt=function(x) {
-      a*(x-1/2)^3+(1-a/4)*x+a/8
+    palt=function(x, a=apar) {
+      if(a==0) return(punif(x))
+      ifelse(x<0, 0,
+             ifelse(x>1, 1,
+                    a*(x-0.5)^3+x-a*x/4+a/8))
     }
   }
 #23
   if(which=="uniform-bump") {
-    alpha=0.125
+    apar=0.125
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    ralt=function(n) c(runif(floor(n*(1-alpha))), 
-        rnorm(ceiling(n*alpha), 0.5, 0.05))
-    palt=function(x) (1-alpha)*punif(x)+alpha*pnorm(x, 0.5, 0.05)
+    palt=function(x, a=apar) 
+        (1-a)*punif(x)+a*pnorm(x, 0.5, 0.05)
+    ralt=function(a=apar) 
+       c(runif(floor(n*(1-a))), rnorm(ceiling(n*a), 0.5, 0.05))
   }
 #24
   if(which=="uniform-sine") {
+    apar=ifelse(data_type=="cont", 0.5, 0.4)
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    a=ifelse(data_type=="cont", 0.5, 0.4)
-    ralt=function(n) {
+    apar=ifelse(data_type=="cont", 0.5, 0.4)
+    palt=function(x, a=apar) {
+      if(a==0) return(punif(x))
+      ifelse(x<0, 0,
+             ifelse(x>1, 1,
+                    x-a*cos(4*pi*x)/4/pi+a/4/pi))
+    }
+    ralt=function(a=apar) {
+      if(a==0) return(runif(n))
       y = NULL
       repeat { 
         z=runif(n)
-        I=ifelse(runif(n)<1+a*sin(4*pi*z), TRUE, FALSE)
+        I=ifelse((1+abs(a))*runif(n)<1+a*sin(4*pi*z), TRUE, FALSE)
         y = c(y, z[I]) 
         if(length(y)>n) break
       }
-      y
+      y[1:n]
     }
-    palt=function(x) x-a*cos(4*pi*x)/4/pi+a/4/pi
   }  
 #25
   if(which=="beta22.betaaa") {
-    a=ifelse(data_type=="cont", 2.7, 2.85)
+    apar=ifelse(data_type=="cont", 2.7, 2.85)
     rnull=function(n) rbeta(n, 2, 2)
     dnull=function(x) dbeta(x, 2, 2)
     pnull=function(x) pbeta(x, 2, 2)
-    ralt=function(n) rbeta(n, a, a)
-    palt=function(x) pbeta(x, a, a)
+    palt=function(x, a=apar) pbeta(x, a, a)
+    ralt=function(a=apar) rbeta(n, a, a)
   }
 #26
   if(which=="beta22.beta2a") {
-    a=2.35
+    apar=2.35
     rnull=function(n) rbeta(n, 2, 2)
     dnull=function(x) dbeta(x, 2, 2)
     pnull=function(x) pbeta(x, 2, 2)
-    ralt=function(n) rbeta(n, 2, a)
-    palt=function(x) pbeta(x, 2, a)
+    palt=function(x, a=apar) pbeta(x, 2, a)
+    ralt=function(a=apar) rbeta(n, 2, a)
   }  
 #27
   if(which=="uniform.uniformmixture") {
-    a=ifelse(data_type=="cont", 0.6, 0.55)
+    apar=ifelse(data_type=="cont", 0.6, 0.55)
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    ralt=function(n) {
-      z = runif(n)
-      y = ifelse(z<1-a, z/2/(1-a), (z-1+a)/2/a+0.5)
-    }
-    palt=function(x) {
-      ifelse(x<1-a, (1-a)*punif(x, 0, 1/2),
-             1-a+a*punif(x, 1/2, 1))
-    }
+    palt=function(x, a=apar) 
+      a*punif(x, 0, 0.5)+(1-a)*punif(x, 0.5, 1)
+    ralt=function(a=apar) 
+      y = ifelse(runif(n)<a, runif(n, 0, 0.5), runif(n, 0.5, 1))
   } 
 #28
   if(which=="uniform.betamixture") {
-    a=0.5
+    apar=0.5
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    ralt=function(n) c(runif((1-a)*n), rbeta(a*n, 2, 2))
-    palt=function(x) (1-a)*punif(x)+a*pbeta(x, 2, 2)
+    palt=function(x, a=apar) (1-a)*punif(x)+a*pbeta(x, 2, 2)
+    ralt=function(a=apar) 
+      c(runif(floor((1-a)*n)), rbeta(ceiling(a*n), 2, 2))
   }  
 #29
   if(which=="uniform.triangular") {
-    a=0.44
+    apar=0.44
     rnull=function(n) runif(n)
     dnull=function(x) dunif(x)
     pnull=function(x) punif(x)
-    ralt=function(n) {
-      y=runif(a*n)
+    palt=function(x, a=apar) {
+      if(a==0) return(punif(x))
+      ifelse(x<0, 0,
+             ifelse(x>1, 1,
+                    (1-a)*x+a*ifelse(x<1/2, 2*x^2, 4*x-2*x^2-1)))
+    }
+    ralt=function(a=apar) {
+      y=runif(ceiling(a*n))
       y=ifelse(y<1/2, sqrt(y/2), 1-sqrt((1-y)/2))
-      c(y, runif((1-a)*n))
-    }    
-    palt=function(x) (1-a)*punif(x)+a*ifelse(x<0.5, 2*x^2, 1-2*(1-x)^2)
+      c(y, runif(floor((1-a)*n)))
+    }
   }     
 #30
   if(which=="double.exponential") {
-    a=ifelse(data_type=="cont", 1.2, 1.3)
-    rnull=function(n) ifelse(runif(n)<0,-rexp(n, 1), rexp(n, 1))
+    apar=ifelse(data_type=="cont", 1.2, 1.3)
+    rnull=function(n) ifelse(runif(n)<0.5,-rexp(n, 1), rexp(n, 1))
     dnull=function(x) dexp(abs(x), 1)/2
-    pnull=function(x) ifelse(x<0,(1-pexp(-x, 1))/2,1/2+pexp(x,1)/2)
-    ralt=function(n) ifelse(runif(n)<0,-rexp(n, a), rexp(n, a))
-    palt=function(x) ifelse(x<0,(1-pexp(-x, a))/2,1/2+pexp(x,a)/2)
+    pnull=function(x) 
+      ifelse(x<0,(1-pexp(-x, 1))/2,1/2+pexp(x,1)/2)
+    palt=function(x, a=apar) 
+      ifelse(x<0,(1-pexp(-x, a))/2,1/2+pexp(x, a)/2)
+    ralt=function(a=apar) 
+      ifelse(runif(n)<0.5,-rexp(n, a), rexp(n, a))
+    TSextra=list(
+      qnull=function(x) ifelse(x<1/2, log(2*x), -log(2*(1-x))))
   }
 #31
   if(which=="normal.onestretch") {
-    a=ifelse(data_type=="cont", 1.25, 1.35)
+    apar=ifelse(data_type=="cont", 1.25, 1.35)
     rnull=function(n) rnorm(n)
     dnull=function(x) dnorm(x)
     pnull=function(x) pnorm(x)
-    ralt=function(n)  c(-abs(rnorm(n/2)), abs(rnorm(n/2, 0,a)))
-    palt=function(x) ifelse(x<0,pnorm(x), pnorm(x,0,a))
+    palt=function(x, a=apar) 
+      ifelse(x<0, pnorm(x), pnorm(x, 0, a))
+    ralt=function(a=apar)  
+      {k=msizes(n, c(1/2, 1/2)); c(-abs(rnorm(k[1])), abs(rnorm(k[2], 0,a)))}
   }
 #32
   if(which=="normal.t") {
-    a=ifelse(data_type=="cont", 6, 5)
+    apar=ifelse(data_type=="cont", 6, 5)
     rnull=function(n) rnorm(n)
     dnull=function(x) dnorm(x)
     pnull=function(x) pnorm(x)
-    ralt=function(n) rt(n, a)
-    palt=function(x) pt(x, a)
+    palt=function(x, a=apar) pt(x, a)
+    ralt=function(a=apar) rt(n, a)
   }  
 #33
   if(which=="normal.outlier1") {
-    a=ifelse(data_type=="cont", 0.015, 0.085)
+    apar=ifelse(data_type=="cont", 0.015, 0.085)
     rnull=function(n) rnorm(n)
     dnull=function(x) dnorm(x)
     pnull=function(x) pnorm(x)
-    ralt=function(n) c(rnorm(floor((1-a)*n)), rnorm(ceiling(a*n), 5))
-    palt=function(x) (1-a)*pnorm(x)+a*pnorm(x, 5)
+    palt=function(x, a=apar) (1-a)*pnorm(x)+a*pnorm(x, 3)
+    ralt=function(a=apar) 
+      c(rnorm(floor((1-a)*n)), rnorm(ceiling(a*n), 3))
   }    
 #34
   if(which=="normal.outlier2") {
-    a=ifelse(data_type=="cont", 0.012, 0.03)
+    apar=ifelse(data_type=="cont", 0.012, 0.03)
     rnull=function(n) rnorm(n)
     dnull=function(x) dnorm(x)
     pnull=function(x) pnorm(x)
-    ralt=function(n) c(rnorm((1-2*a)*n), runif(a*n, -5, -3), runif(a*n, 3, 5))
-    palt=function(x) (1-2*a)*pnorm(x)+a*punif(x, -5, -3)+a*punif(x, 3, 5)
+    palt=function(x, a=apar) 
+      (1-2*a)*pnorm(x)+a*punif(x, -5, -3)++a*punif(x, 3, 5)
+    ralt=function(a=apar) {
+      n1=floor(a*n)
+      n2=ceiling(a*n)
+      n0=n-n1-n2
+      c(rnorm(n0), runif(n1, -5, -3), runif(n2, 3, 5))
+    }
   }    
 #35
   if(which=="normal.normalmixture") {
-    a=ifelse(data_type=="cont", 0.62, 0.68)
+    apar=ifelse(data_type=="cont", 0.62, 0.68)
     rnull=function(n) rnorm(n)
     dnull=function(x) dnorm(x)
     pnull=function(x) pnorm(x)
-    ralt=function(n) c(rnorm(n/2, -a), rnorm(n/2, a))
-    palt=function(x) (pnorm(x,-a)+pnorm(x, a))
+    palt=function(x, a=apar) (pnorm(x,-a)+pnorm(x, a))/2
+    ralt=function(a=apar) {k=msizes(n, c(1/2, 1/2)); c(rnorm(k[1], -a), rnorm(k[2], a))}
   }    
 #36
   if(which=="exponential.gamma") {
-    a=ifelse(data_type=="cont", 1.22, 1.28)
+    apar=ifelse(data_type=="cont", 1.22, 1.28)
     rnull=function(n) rexp(n, 1)
     dnull=function(x) dexp(x, 1)
     pnull=function(x) pexp(x, 1)
-    ralt=function(n) rgamma(n, 1, a)
-    palt=function(x) pgamma(x, 1, a)
+    palt=function(x, a=apar) pgamma(x, 1, a)
+    ralt=function(a=apar) rgamma(n, 1, a)
   }
 #37
   if(which=="exponential.weibull") {
-    a=ifelse(data_type=="cont", 1.22, 1.3)
+    apar=ifelse(data_type=="cont", 1.22, 1.3)
     rnull=function(n) rexp(n, 1)
     dnull=function(x) dexp(x, 1)
     pnull=function(x) pexp(x, 1)
-    ralt=function(n) rweibull(n, 1, a)
-    palt=function(x) pweibull(x, 1, a)
+    palt=function(x, a=apar) pweibull(x, a, 1)
+    ralt=function(a=apar) rweibull(n, a, 1)
   }
 #38
   if(which=="exponential.bump") {
-    a=0.124
+    apar=0.124
     rnull=function(n) rexp(n, 1)
     dnull=function(x) dexp(x, 1)
     pnull=function(x) pexp(x, 1)
-    ralt=function(n) c(rexp((1-a)*n, 1), rnorm(a*n, 0.5, 0.05))
-    palt=function(x) (1-a)*pexp(x, 1)+a*pnorm(x, 0.5, 0.05)
+    palt=function(x, a=apar) 
+      (1-a)*pexp(x, 1)+a*pnorm(x, 0.5, 0.05)
+    ralt=function(a=apar) 
+      c(rexp(floor((1-a)*n), 1), rnorm(ceiling(a*n), 0.5, 0.05))
   }  
 #39
   if(which=="chisquare.noncentral") {
-    a=ifelse(data_type=="cont", 0.6, 3)
+    apar=ifelse(data_type=="cont", 0.6, 3)
     rnull=function(n) rchisq(n, 5)
     dnull=function(x) dchisq(x, 5)
     pnull=function(x) pchisq(x, 5)
-    ralt=function(n) rchisq(n, 5, a)
-    palt=function(x) pchisq(x, 5, a)
+    palt=function(x, a=apar) pchisq(x, 5, a)
+    ralt=function(a=apar) rchisq(n, 5, a)
   } 
 #40
   if(which=="gamma.gammamixture") {
-    a=0.275
+    apar=0.275
     rnull=function(n) rgamma(n, 2, 3)
     dnull=function(x) dgamma(x, 2, 3)
     pnull=function(x) pgamma(x, 2, 3)
-    ralt=function(n) c(rgamma((1-a)*n, 2, 3), rgamma(a*n, 3, 3))
-    palt=function(x) (1-a)*pgamma(x, 2, 3)+a*pgamma(x, 3, 3)
+    palt=function(x, a=apar) (1-a)*pgamma(x, 2, 3)+a*pgamma(x, 3, 3)
+    ralt=function(a=apar) c(rgamma(floor((1-a)*n), 2, 3), rgamma(ceiling(a*n), 3, 3))
+    
   }
 # End of definitions  
 #   
 
 # Create output  
   if(data_type=="cont") {
-    f=function() {list(x=rnull(n), y=ralt(n))} 
+    f=function(a) {list(x=rnull(n), y=ralt(a))}
+    vals=NA
   }
   else {
     prob1=diff(pnull(bins))
-    prob2=diff(palt(bins))
-    f=function() {
+    prob2=diff(palt(bins, apar))
+    f=function(a) {
       x=c(rmultinom(1, n, prob1))
       y=c(rmultinom(1, n, prob2)) 
       vals=vals
@@ -446,5 +506,6 @@ case_studies=function(which, which_diff ="mean", data_type="cont",
     }
   }  
   return(list(f=f, rnull=rnull, dnull=dnull, pnull=pnull,
-              ralt=ralt, palt=palt))   
+              ralt=ralt, palt=palt, apar=apar,
+              vals=vals))   
 }

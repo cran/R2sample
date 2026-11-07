@@ -3,7 +3,7 @@
 
 #include <Rcpp.h>
 Rcpp::NumericVector TS_cont(
-   Rcpp::NumericVector x, 
-   Rcpp::NumericVector y);
+   Rcpp::NumericVector x_input, 
+   Rcpp::NumericVector y_input);
 
 #endif

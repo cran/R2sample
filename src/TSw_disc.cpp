@@ -10,6 +10,7 @@ using namespace Rcpp;
 //' @param wy integer vector of weights
 //' @keywords internal
 //' @return A vector with test statistics
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericVector TSw_disc(
         Rcpp::IntegerVector x, 

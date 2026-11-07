@@ -14,6 +14,7 @@
 #' @param  With.p.value =FALSE does user supplied routine return p values?
 #' @param  alpha =0.05, the level of the hypothesis test 
 #' @param  B =1000, number of simulation runs.
+#' @param  seed =NULL, optional seed for reproducibility
 #' @param  nbins =c(50,10), number of bins for chi large and chi small.
 #' @param  minexpcount =5 minimum required count for chi square tests
 #' @param  UseLargeSample should p values be found via large sample theory if n,m>10000?
@@ -43,31 +44,40 @@
 #'  twosample_power(f3, c(0,1), c(25, 30), TS=myTS2, With.p.value = TRUE,  B=100)
 #'  
 twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE, 
-            alpha=0.05, B=1000, 
+            alpha=0.05, B=1000, seed=NULL,
             nbins=c(50,10), minexpcount=5, UseLargeSample, 
             samplingmethod="Binomial", rnull, 
             SuppressMessages=FALSE, maxProcessor) {
 
-  if(!missing(UseLargeSample) & !missing(rnull)) {
+  if(!missing(rnull)) {
+    if(!missing(UseLargeSample) && isTRUE(UseLargeSample)) {
       message("Large sample methods are not implemented for GOF-Twosample hybrid problem")
       return(NULL)
-  }  
-
-# create function rxy which generates data, with two arguments                       
-    if(length(list(...))==0) { # f has 0 arguments
+    }
+    UseLargeSample=FALSE
+  }
+# create function rxy which generates data, with two arguments 
+    dots <- list(...)
+    if(length(formals(f))==0) { # f has 0 arguments
+       if(length(dots)>0)
+         message("f has no arguments! Provided arguments will be ignored")
        rxy=function(a=0, b=0) f()
        avals=0
        bvals=0
     }
-    if(length(list(...))==1) { # f has 1 argument
+    if(length(formals(f))==1) { # f has 1 argument
+       if(length(dots)!=1) 
+         stop("f has to have one argument!", call. = FALSE)
        rxy=function(a=0, b=0) f(a)
-       avals=list(...)[[1]]
+       avals=dots[[1]]
        bvals=0
     }
-    if(length(list(...))==2) { # f has 2 arguments
+    if(length(formals(f))==2) { # f has 2 arguments
+       if(length(dots)!=2)
+         stop("f has to have two arguments!", call. = FALSE)
        rxy=function(a=0, b=0) f(a,b)
-       avals=list(...)[[1]]
-       bvals=list(...)[[2]]
+       avals=dots[[1]]
+       bvals=dots[[2]]
     }
   # check that avals and bvals have the same length. 
   # If they do, matrix of powers is returned without row names.
@@ -103,33 +113,16 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
   else wx=rep(1, length(x))
   if("wy"%in%names(dta)) wy=dta$wy
   else wy=rep(1, length(y))
-
+  set_seed(seed)
   if(!is.numeric(samplingmethod))
      samplingmethod=ifelse(samplingmethod=="independence", 1, 2)
   Continuous = ifelse("vals" %in% names(dta), FALSE, TRUE)
-  if(missing(TSextra)) TSextra = list(samplingmethod=samplingmethod)
-  else TSextra=c(TSextra, samplingmethod=samplingmethod)
-  if(!missing(rnull)) TSextra=c(TSextra, rnull=rnull)
+  if(missing(rnull))
+    TSextra <- makeTSextra(TSextra, samplingmethod)
+  else
+    TSextra <- makeTSextra(TSextra, samplingmethod, rnull)
   CustomTS=ifelse(missing(TS), FALSE, TRUE)
   WithWeights=ifelse(all(c(wx,wy)==1), FALSE, TRUE)
-  m=parallel::detectCores(logical = FALSE)
-  available=max(1, m-1)
-  if(missing(maxProcessor)) {
-    if(!Continuous) {
-       maxProcessor=1
-       if(!SuppressMessages) message("For discrete data only a single processor is used if maxProcessor is not specified")
-    }
-    if(Continuous) {
-    #  set number of processors for parallel programming
-       maxProcessor=available
-       if(!SuppressMessages) 
-         message(paste0("Using ", maxProcessor, " cores"))
-    }
-  } 
-  if(maxProcessor>m-1) maxProcessor=available
-  # assure that B is a multiple of maxProcessor      
-  B=ceiling(B/maxProcessor)*maxProcessor
-
   if(min(wx, wy)<0.01 | max(wx, wy)>5)
       if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
   if(missing(UseLargeSample)) {
@@ -137,67 +130,53 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
       if(!Continuous) UseLargeSample=FALSE
   }  
   if(!Continuous) vals=dta$vals
-  if(!CustomTS) { # do included methods
-    if(Continuous) {
-      if(!WithWeights) { # No weights
-        typeTS = 1
-        TS=TS_cont
-        tmp=TS(x,y)
-      }
-      else { # weighted data
-        typeTS = 2
-        TS=TSw_cont
-        tmp=TS(x, y, wx, wy)
-        doMethods=c("KS", "Kuiper", "CvM", "AD")
-        if(min(wx,wy)<0.01 | max(wx,wy)>5)
-          if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
-        }
-      }
-      else {
-        typeTS=5
-        TS=TS_disc
-        TSextra=c(TSextra, list(adw=weights(dta)))
-        tmp=TS(x, y, vals, TSextra$adw)
-      }  
-  }  
-  else { # do user-supplied tests
-    if(substr(deparse(TS)[2], 1, 5)==".Call") {
-      if(maxProcessor>1) {
-        if(!SuppressMessages) message("Parallel Programming is not possible if custom TS is written in C++. Switching to single processor")  
-        maxProcessor=1
-      }  
+  if(CustomTS) tsinfo <- maketypeTS(TS, Continuous, WithWeights)
+  else tsinfo <- maketypeTS(Continuous=Continuous, WithWeights=WithWeights)
+  TS <- tsinfo$TS
+  typeTS <- tsinfo$typeTS
+# add the HHG test to the built-in tests (continuous data without weights, discrete data).
+# For discrete data its null distribution is found from the first data set.
+  if(!CustomTS && !WithWeights) TS <- add_HHG(TS, x, y, Continuous)
+
+  if(!CustomTS) {
+    if(!Continuous) TSextra$adw=weights(dta)
+    tmp=calcTS(dta, TS, typeTS, TSextra)
+    if(Continuous && WithWeights) {
+      doMethods=c("KS","Kuiper","CvM","AD")
+      if(min(wx,wy)<0.01 | max(wx,wy)>5)
+        if(!SuppressMessages) message("Some of the weights are either exceptionally small or large. In either case the tests can be unreliable!")
     }
-    if(Continuous) {
-      if(length(formals(TS))==2) {
-        typeTS=3
-        tmp=TS(x, y)
-      }
-      else {
-        typeTS=4
-        tmp=TS(x, y, TSextra)
-      }
-    }
-    else {
-      if(length(formals(TS))==3) {
-        typeTS=6
-        tmp=TS(x, y, vals)
-      }  
-      else {
-        typeTS=7
-        tmp=TS(x, y, vals, TSextra)
-      }
-    }
+  } else {
+    tmp=calcTS(dta, TS, typeTS, TSextra)
     if(is.list(tmp)) {
-        message("TS should return a named vector of either  test statistic(s) or p value(s), but not both.")
-        return(NULL)
+      message("TS should return a named vector of either test statistic(s) or p value(s), but not both.")
+      return(NULL)
     }
     if(is.null(names(tmp))) {
       message("output of TS routine has to be a named vector!")
       return(NULL)
-    }  
+    }
   }
   methodnames=names(tmp)
-  
+
+# Choose number of processors after dta, TS and typeTS are known.
+  if(missing(maxProcessor))
+    maxProcessor <- makemaxProcessor(
+      dta=dta, TS=TS, typeTS=typeTS, TSextra=TSextra, B=B,
+      SuppressMessages=SuppressMessages,
+      useSingleProcessor=tsinfo$useSingleProcessor
+    )
+  else
+    maxProcessor <- makemaxProcessor(
+      maxProcessor=maxProcessor,
+      dta=dta, TS=TS, typeTS=typeTS, TSextra=TSextra, B=B,
+      SuppressMessages=SuppressMessages,
+      useSingleProcessor=tsinfo$useSingleProcessor
+    )
+
+# Assure that B is a multiple of maxProcessor.
+  B=ceiling(B/maxProcessor)*maxProcessor
+
 # do chi square tests if built-in tests are used
   pwrchi=NULL
   if( (typeTS %in% c(1,2,5)) & (!UseLargeSample) ) {
@@ -214,6 +193,8 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
        else {
           cl <- parallel::makeCluster(maxProcessor)
           on.exit(parallel::stopCluster(cl), add=TRUE)
+          if(!is.null(seed))
+            parallel::clusterSetRNGStream(cl, iseed=seed)
           z=parallel::clusterCall(cl, power_cont_LS, rxy=rxy, 
               alpha=alpha, B=round(B/maxProcessor) , xparam=avals, yparam=bvals)
           
@@ -232,14 +213,10 @@ twosample_power=function(f, ..., TS, TSextra, With.p.value=FALSE,
        pwr=powerR(rxy=rxy, xparam=avals, yparam=bvals, TS=TS, typeTS, 
                TSextra, alpha=alpha, B=B,
                SuppressMessages = SuppressMessages,
-               maxProcessor=maxProcessor)
+               maxProcessor=maxProcessor, seed=seed)
     }
   }  
-  if(UseLargeSample) {
-    colnames(pwr) = c("KS", "Kuiper", "CvM", "AD", 
-                     "ES large", "ES small" , "EP large", "EP small")
-  }  
-  else colnames(pwr) = methodnames
+  if(!UseLargeSample) colnames(pwr) = methodnames
   if(!CustomTS) pwr = cbind(pwr, pwrchi)
   if(length(list(...))==0) rownames(pwr)=NULL
   if(length(list(...))==1) rownames(pwr)=avals

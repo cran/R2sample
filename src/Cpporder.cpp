@@ -7,6 +7,7 @@ using namespace Rcpp;
 //' @param x numeric vector
 //' @keywords internal
 //' @return numeric vector
+//' @noRd
 // [[Rcpp::export]]  
 std::vector<double> Cpporder(std::vector<double>& y, std::vector<double>& x) {
     int n=x.size();

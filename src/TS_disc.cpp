@@ -1,183 +1,117 @@
 #include <Rcpp.h>
+#include "EppsS.h"
 using namespace Rcpp;
 
 //' find test statistics for discrete data
-//' 
+//'
 //' @param x integer vector of data set 1
 //' @param y integer vector of data set 2
-//' @param vals numeric vector of values of discrete data set
-//' @param ADweights A vector of weights for AD method
+//' @param vals numeric vector of values of discrete data set, sorted increasingly
+//' @param ADweights A vector of weights for AD method, see weights()
 //' @keywords internal
 //' @return A vector of test statistics
+//' @noRd
 // [[Rcpp::export]]
-NumericVector TS_disc(IntegerVector x, 
-                      IntegerVector y, 
-                      NumericVector vals,  
+NumericVector TS_disc(IntegerVector x,
+                      IntegerVector y,
+                      NumericVector vals,
                       NumericVector ADweights=Rcpp::NumericVector::create(2))  {
-  
-  CharacterVector methods = CharacterVector::create("KS", "Kuiper", "CvM", "AD", "LR", "ZA", "Wassp1");  
+
+  CharacterVector methods = CharacterVector::create("KS", "Kuiper", "CvM", "AD", "ZA", "Wassp1", "EppsS");
   int const nummethods=methods.size();
 
-  int k=vals.size(), nx, ny, n, i, j;
-  NumericVector TS(nummethods), R(k), p(k+1), z(k+1), p1(k), z1(k);
-  NumericVector tmpx(2*k+1), tmpy(2*k+1), tmpxy(2*k+1), w(2*k+1), Fx(k), Fy(k);  
-  IntegerVector xy(k), cx(k), cy(k), sxy(k), cxy(k), D(k+1), D1(k+1);
-
-  double tmp, sx, sy;
+  int k=vals.size(), nx, ny, n, i;
+  NumericVector TS(nummethods), Fx(k), Fy(k);
+  IntegerVector xy(k), cx(k), cy(k), cxy(k);
+  double tmp;
 
   TS.names() = methods;
+  if((int) ADweights.size()!=k) stop("ADweights must have the same length as vals");
 
-  /*  sample sizes*/  
+  /*  sample sizes*/
   nx=0;
   ny=0;
   for(i=0;i<k;++i) {
     nx+=x[i];
     ny+=y[i];
-  }   
+  }
   n=nx+ny;
 
-  /*  combined data, then sorted, cumulative sums of x, y and xy */
-  
+  /*  cumulative sums of x, y and xy, edfs */
+
   for(i=0;i<k;++i) {
-    if(i==0) cx[i]=x[i];
-    else cx[i]=cx[i-1]+x[i];
-    if(i==0) cy[i]=y[i];
-    else cy[i]=cy[i-1]+y[i];    
     xy[i]=x[i]+y[i];
-    sxy[i]=xy[i];
-    if(i==0) cxy[i]=xy[i];
-    else cxy[i]=cxy[i-1]+xy[i];
-  }  
-  std::sort(sxy.begin(), sxy.end());
-
-    /*  Ranks */
-  
-    for(j=0;j<k;++j) {
-      R[j]=0.0;
-      for(i=1;i<=xy[j];++i) {
-        R[j]=R[j]+i;
-      }
-      R[j]=R[j]/xy[j];
-      if(j>0) R[j]=R[j]+cxy[j-1];
+    cx[i]=x[i];
+    cy[i]=y[i];
+    cxy[i]=xy[i];
+    if(i>0) {
+      cx[i]+=cx[i-1];
+      cy[i]+=cy[i-1];
+      cxy[i]+=cxy[i-1];
     }
-    
-   /*  t test  */  
+    Fx[i]=double(cx[i])/nx;
+    Fy[i]=double(cy[i])/ny;
+  }
 
-     sx=0.0; 
-     sy=0.0;
-     for(i=0;i<k;++i) {
-       sx+=vals[i]*x[i];
-       sy+=vals[i]*y[i];
-     }  
+  /*  Kolmogorov-Smirnov and Kuiper */
 
-
-  /*  Kolomogorov-Smirnov and Kuiper */
-  
-     double mx=double(cx[0])/nx-double(cy[0])/ny;
-     double Mx=double(cx[0])/nx-double(cy[0])/ny;
+     double mx=Fx[0]-Fy[0];
+     double Mx=Fx[0]-Fy[0];
      for(i=1;i<k;++i) {
-       tmp=double(cx[i])/nx-double(cy[i])/ny;
+       tmp=Fx[i]-Fy[i];
        if(mx>tmp) mx=tmp;
        if(Mx<tmp) Mx=tmp;
      }
      if(-mx>Mx) TS(0)=-mx;
      else TS(0)=Mx;
      TS(1)=Mx-mx;
-     
+
   /* Cramer-vonMises and Anderson-Darling test*/
-   
-     Fx(0)=x(0)/double(nx);
-     Fy(0)=y(0)/double(ny);
-     for(i=1;i<k;++i) {
-        Fx(i)=Fx(i-1)+x(i)/double(nx);
-        Fy(i)=Fy(i-1)+y(i)/double(ny);         
-     } 
+
      TS(2)=0.0;
-     for(i=0;i<k;++i) {
-          tmp=Fx(i)-Fy(i);     
-          TS(2)=TS(2)+xy(i)*tmp*tmp;
-     }
-     TS(2)=TS(2)*nx*ny/n/n;    
- 
      TS(3)=0.0;
      for(i=0;i<k;++i) {
-          tmp=Fx(i)-Fy(i);     
+          tmp=Fx(i)-Fy(i);
+          TS(2)=TS(2)+xy(i)*tmp*tmp;
           TS(3)=TS(3)+ADweights(i)*tmp*tmp;
-      }
-      TS(3)=TS(3)*nx*ny; 
+     }
+     TS(2)=TS(2)*nx*ny/n/n;
+     TS(3)=TS(3)*nx*ny;
 
-/*    Lehmann-Rosenblatt test*/   
-   
-  
+  /* Zhang's ZA test. Within a class the "midpoint" edfs
+     px = (cx[i-1]+x[i]/2)/nx and py = (cy[i-1]+y[i]/2)/ny are used at each
+     of the tied positions j=cxy[i-1]+1,..,cxy[i] of the combined sample.
+     Without ties this is exactly Zhang's (2006) statistic, as in TS_cont.
+     The sign is changed so that large values lead to rejection. */
 
-    double xt=double(n)/double(nx),yt=double(n)/double(ny);
-    TS(4)=double(n)*n*( (nx+1.0)*ny/nx*(2*nx+1.0)+(ny+1.0)*nx/ny*(2*ny+1.0) )/6.0;
-    for(i=0;i<k;++i) {
-      TS(4)=TS(4)+
-        double(ny)*(x[i]*R[i]*R[i]-xt*(cx[i]*(cx[i]+1.0)-cx[i-1]*(cx[i-1]+1.0))*R[i])+
-        double(nx)*(y[i]*R[i]*R[i]-yt*(cy[i]*(cy[i]+1.0)-cy[i-1]*(cy[i-1]+1.0))*R[i]);
-    }  
-    TS(4)=TS(4)/n/nx/ny;
+     TS(4)=0.0;
+     for(i=0;i<k;++i) {
+       double px=(double(cx[i])-x[i]/2.0)/nx;
+       double py=(double(cy[i])-y[i]/2.0)/ny;
+       double ex=px*log(px+1e-10)+(1-px)*log(1-px+1e-10);
+       double ey=py*log(py+1e-10)+(1-py)*log(1-py+1e-10);
+       /* w = sum_{j=a}^{b} 1/((j-0.5)(n-j+0.5))
+            = ( sum 1/(j-0.5) + sum 1/(n-j+0.5) )/n, via digamma */
+       int a=cxy[i]-xy[i]+1, b=cxy[i];
+       double w=( R::digamma(b+0.5)-R::digamma(a-0.5) +
+                  R::digamma(n-a+1.5)-R::digamma(n-b+0.5) )/n;
+       TS(4)=TS(4)+(nx*ex+ny*ey)*w;
+     }
 
-
-    /* Zhang's tests */
-  
-
-    D[0]=ceil(R[0])-1;
-    for(i=0;i<k-1;++i) D[i+1]=ceil(R[i+1])-ceil(R[i]);
-    D[k]=n+1-ceil(R[k-1]);
-    p[0]=0.0;
-    for(i=1;i<k+1;++i) p[i]=double(cx[i-1])/nx;
-    for(i=0;i<k+1;++i) 
-       z[i]=nx*(p[i]*log(p[i]+1e-10)+(1-p[i])*log(1-p[i]+1e-10));
-    for(i=0;i<k;++i) {
-       p1[i]=(double(cx[i])-0.5)/nx;
-       if(p1[i]<0) p1[i]=0;  
-    }   
-    for(i=0;i<k;++i) 
-      z1[i]=nx*(p1[i]*log(p1[i]+1e-10)+(1-p1[i])*log(1-p1[i]+1e-10));
-    tmpx[0]=z[0];
-    for(i=0;i<k;++i) {
-      tmpx[2*i+1]=z1[i];
-      tmpx[2*i+2]=z[i+1];
-    }
-    p[0]=0.0;
-    for(i=1;i<k+1;++i) p[i]=double(cy[i-1])/ny;
-    for(i=0;i<k+1;++i) 
-      z[i]=ny*(p[i]*log(p[i]+1e-10)+(1-p[i])*log(1-p[i]+1e-10));
-    for(i=0;i<k;++i) {
-       p1[i]=(double(cy[i])-0.5)/ny;
-       if(p1[i]<0) p1[i]=0;
-    }   
-    for(i=0;i<k;++i) 
-      z1[i]=ny*(p1[i]*log(p1[i]+1e-10)+(1-p1[i])*log(1-p1[i]+1e-10));
-    tmpy[0]=z[0];
-    for(i=0;i<k;++i) {
-      tmpy[2*i+1]=z1[i];
-      tmpy[2*i+2]=z[i+1];
-    }
-    for(i=0;i<2*k+1;++i) tmpxy[i]=tmpx[i]+tmpy[i];
-    D1[0]=D[0];
-    for(i=1;i<k+1;++i) D1[i]=D[i]+D1[i-1];
-
-     w[0]=0.0;
-     for(j=1;j<=D1[0];++j) w[0]=w[0]+1.0/( (j-0.5)*(n-j+0.5) );
-     for(i=1;i<=k;++i) {
-        w[2*i-1]=1.0/( (D1[i-1]+0.5)*(n-D1[i-1]-0.5) );
-        w[2*i]=0.0;
-        for(j=(D1[i-1]+2);j<=D1[i];++j) 
-            w[2*i]=w[2*i]+1.0/( (j-0.5)*(n-j+0.5) );
-     } 
-     
-     TS(5)=0.0;
-     for(i=0;i<2*k+1;++i) TS(5)=TS(5)+tmpxy[i]*w[i];
-     
  /*  Wasserstein */
 
-     TS(6)=0.0;  
+     TS(5)=0.0;
      for(i=0;i<k-1;++i) {
-       TS(6)=TS(6)+std::abs(cx(i)/double(nx)-cy(i)/double(ny))*(vals(i+1)-vals(i));
+       TS(5)=TS(5)+std::abs(Fx(i)-Fy(i))*(vals(i+1)-vals(i));
      }
-   
+
+ /* Epps-Singleton test (Epps and Singleton 1986) */
+
+     {
+       std::vector<double> v(k), wx(k), wy(k);
+       for(i=0;i<k;++i) {v[i]=vals[i]; wx[i]=x[i]; wy[i]=y[i];}
+       TS(6)=eppss_core(v, wx, wy, NULL);
+     }
+
   return TS;
 }

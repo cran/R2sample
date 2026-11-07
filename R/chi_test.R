@@ -6,6 +6,7 @@
 #' @param  ponly Should the p value alone be returned?
 #' @keywords internal
 #' @return A list with the test statistics, the p value and the degree of freedom for each test
+#' @noRd
 
 chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
   
@@ -19,7 +20,9 @@ chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
     ny = sum(y)
     n = nx+ny
     k = length(x)
-    while ( (k>3) && ((min(x+y)<minexpcount) || (k>maxbins)) ){
+# expected counts in bin i under H0 are nx(x_i+y_i)/n and ny(x_i+y_i)/n,
+# so the smallest expected count is min(nx,ny)(x_i+y_i)/n
+    while ( (k>3) && ((min(x+y)*min(nx,ny)/n<minexpcount) || (k>maxbins)) ){
       i = which.min(x+y)
       if(i==1) {
         x = c(x[1]+x[2], x[3:k])
@@ -110,7 +113,7 @@ chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
     v = wx[, 2]
     o = wy[, 1]
     u = wy[, 2]
-    t = length(x)/length(y)
+    t = sum(n)/sum(o) # ratio of total weights
     chi = sum( (n-t*o)^2/(v+t^2*u) )
     p = 1-stats::pchisq(chi, length(n)-1)
     c(chi, p, length(n)-1)
@@ -138,7 +141,7 @@ chi_test = function(dta, nbins=c(50, 10), minexpcount=5, typeTS, ponly=FALSE) {
     rownames(out) = c("ES large", "ES small", "EP large", "EP small")
     # Equal size bins 
     for(j in 1:2) {
-      bins = seq(min(xy),max(xy), length=nbins[j])
+      bins = seq(min(xy),max(xy), length=nbins[j]+1)
       if(typeTS==1) {
         x = bincounter(dta$x, bins)
         y = bincounter(dta$y, bins)

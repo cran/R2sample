@@ -7,11 +7,18 @@ using namespace Rcpp;
 //' @param bins numeric vector
 //' @keywords internal
 //' @return Integer vector of counts
-// [[Rcpp::export]]
-Rcpp::IntegerVector bincounter(Rcpp::NumericVector x, Rcpp::NumericVector bins) {
-  int n=x.size(), m=bins.size(), i, j;
-  Rcpp::IntegerVector xc(m-1);
-  std::sort(x.begin(), x.end());
+//' @noRd
+ // [[Rcpp::export]]
+ Rcpp::IntegerVector bincounter(Rcpp::NumericVector x,
+                                Rcpp::NumericVector bins) {
+   
+   // Work on a private copy because x is sorted below.
+   x = Rcpp::clone(x);
+   
+   int n=x.size(), m=bins.size(), i, j;
+   Rcpp::IntegerVector xc(m-1);
+   
+   std::sort(x.begin(), x.end());
 
   i=0;
   j=0;

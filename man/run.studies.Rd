@@ -14,7 +14,12 @@ run.studies(
   n = 500,
   alpha = 0.05,
   B = 1000,
-  SuppressMessages = TRUE
+  seed = NULL,
+  SuppressMessages = TRUE,
+  RerunIncludedCases = FALSE,
+  maxProcessor = 1,
+  Null = FALSE,
+  ShowProgress = FALSE
 )
 }
 \arguments{
@@ -36,7 +41,24 @@ run.studies(
 
 \item{B}{= 1000}
 
+\item{seed}{=NULL, optional seed for reproducibility. Case study i in the list of
+studies/types that are run uses the seed seed+i, both for the new test and
+(if they are recomputed) for the included methods.}
+
 \item{SuppressMessages}{= TRUE}
+
+\item{RerunIncludedCases}{=FALSE, recompute the powers of the included methods even
+if n=500 and alpha=0.05, instead of using the stored results in power_study}
+
+\item{maxProcessor}{=1, number of processors used in twosample_power. Results with a
+given seed are reproducible only with the same number of processors.}
+
+\item{Null}{=FALSE, if TRUE both data sets are generated under the null hypothesis
+(by rnull), so the result is the type I error. The type "Null" does the same
+for case studies 1-20.}
+
+\item{ShowProgress}{=FALSE, if TRUE a message with the elapsed time and an estimate
+of the remaining time is shown after each case study.}
 }
 \value{
 A matrix of power values.

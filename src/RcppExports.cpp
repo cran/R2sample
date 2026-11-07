@@ -22,15 +22,110 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// TS_cont
-NumericVector TS_cont(NumericVector x, NumericVector y);
-RcppExport SEXP _R2sample_TS_cont(SEXP xSEXP, SEXP ySEXP) {
+// EppsS
+NumericVector EppsS(NumericVector x, NumericVector y, Rcpp::Nullable<NumericVector> vals);
+RcppExport SEXP _R2sample_EppsS(SEXP xSEXP, SEXP ySEXP, SEXP valsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(TS_cont(x, y));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<NumericVector> >::type vals(valsSEXP);
+    rcpp_result_gen = Rcpp::wrap(EppsS(x, y, vals));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_atoms
+IntegerVector HHG_atoms(int N, int A);
+RcppExport SEXP _R2sample_HHG_atoms(SEXP NSEXP, SEXP ASEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type A(ASEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_atoms(N, A));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_null
+NumericMatrix HHG_null(IntegerVector t, int nx, int mmax, int B);
+RcppExport SEXP _R2sample_HHG_null(SEXP tSEXP, SEXP nxSEXP, SEXP mmaxSEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< int >::type nx(nxSEXP);
+    Rcpp::traits::input_parameter< int >::type mmax(mmaxSEXP);
+    Rcpp::traits::input_parameter< int >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_null(t, nx, mmax, B));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_stats_cont
+NumericVector HHG_stats_cont(const NumericVector& x, const NumericVector& y, int A, int mmax);
+RcppExport SEXP _R2sample_HHG_stats_cont(SEXP xSEXP, SEXP ySEXP, SEXP ASEXP, SEXP mmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type mmax(mmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_stats_cont(x, y, A, mmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_stats_disc
+NumericVector HHG_stats_disc(const NumericVector& x, const NumericVector& y, int mmax);
+RcppExport SEXP _R2sample_HHG_stats_disc(SEXP xSEXP, SEXP ySEXP, SEXP mmaxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type mmax(mmaxSEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_stats_disc(x, y, mmax));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_cont
+double HHG_cont(const NumericVector& x, const NumericVector& y, int A, int mmax, const NumericMatrix& nullsorted);
+RcppExport SEXP _R2sample_HHG_cont(SEXP xSEXP, SEXP ySEXP, SEXP ASEXP, SEXP mmaxSEXP, SEXP nullsortedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type mmax(mmaxSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type nullsorted(nullsortedSEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_cont(x, y, A, mmax, nullsorted));
+    return rcpp_result_gen;
+END_RCPP
+}
+// HHG_disc
+double HHG_disc(const NumericVector& x, const NumericVector& y, int mmax, const NumericMatrix& nullsorted);
+RcppExport SEXP _R2sample_HHG_disc(SEXP xSEXP, SEXP ySEXP, SEXP mmaxSEXP, SEXP nullsortedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< int >::type mmax(mmaxSEXP);
+    Rcpp::traits::input_parameter< const NumericMatrix& >::type nullsorted(nullsortedSEXP);
+    rcpp_result_gen = Rcpp::wrap(HHG_disc(x, y, mmax, nullsorted));
+    return rcpp_result_gen;
+END_RCPP
+}
+// TS_cont
+NumericVector TS_cont(const NumericVector& x_input, const NumericVector& y_input);
+RcppExport SEXP _R2sample_TS_cont(SEXP x_inputSEXP, SEXP y_inputSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x_input(x_inputSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y_input(y_inputSEXP);
+    rcpp_result_gen = Rcpp::wrap(TS_cont(x_input, y_input));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -49,15 +144,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // TSw_cont
-NumericVector TSw_cont(std::vector<double>& x, std::vector<double>& y, std::vector<double>& wx, std::vector<double>& wy);
+NumericVector TSw_cont(std::vector<double> x, std::vector<double> y, std::vector<double> wx, std::vector<double> wy);
 RcppExport SEXP _R2sample_TSw_cont(SEXP xSEXP, SEXP ySEXP, SEXP wxSEXP, SEXP wySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<double>& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type wx(wxSEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type wy(wySEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type x(xSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type y(ySEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type wx(wxSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type wy(wySEXP);
     rcpp_result_gen = Rcpp::wrap(TSw_cont(x, y, wx, wy));
     return rcpp_result_gen;
 END_RCPP
@@ -224,14 +319,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // wbincounter
-Rcpp::NumericMatrix wbincounter(std::vector<double>& x, std::vector<double>& bins, std::vector<double>& w);
+Rcpp::NumericMatrix wbincounter(std::vector<double> x, const std::vector<double>& bins, std::vector<double> w);
 RcppExport SEXP _R2sample_wbincounter(SEXP xSEXP, SEXP binsSEXP, SEXP wSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::vector<double>& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type bins(binsSEXP);
-    Rcpp::traits::input_parameter< std::vector<double>& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double>& >::type bins(binsSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type w(wSEXP);
     rcpp_result_gen = Rcpp::wrap(wbincounter(x, bins, w));
     return rcpp_result_gen;
 END_RCPP
@@ -250,6 +345,13 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_R2sample_Cpporder", (DL_FUNC) &_R2sample_Cpporder, 2},
+    {"_R2sample_EppsS", (DL_FUNC) &_R2sample_EppsS, 3},
+    {"_R2sample_HHG_atoms", (DL_FUNC) &_R2sample_HHG_atoms, 2},
+    {"_R2sample_HHG_null", (DL_FUNC) &_R2sample_HHG_null, 4},
+    {"_R2sample_HHG_stats_cont", (DL_FUNC) &_R2sample_HHG_stats_cont, 4},
+    {"_R2sample_HHG_stats_disc", (DL_FUNC) &_R2sample_HHG_stats_disc, 3},
+    {"_R2sample_HHG_cont", (DL_FUNC) &_R2sample_HHG_cont, 5},
+    {"_R2sample_HHG_disc", (DL_FUNC) &_R2sample_HHG_disc, 4},
     {"_R2sample_TS_cont", (DL_FUNC) &_R2sample_TS_cont, 2},
     {"_R2sample_TS_disc", (DL_FUNC) &_R2sample_TS_disc, 4},
     {"_R2sample_TSw_cont", (DL_FUNC) &_R2sample_TSw_cont, 4},

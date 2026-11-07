@@ -78,14 +78,14 @@ twosample_test(x, y, B=500, doMethods=c("KS","AD"))
 #   n=10*1:10), "n")
 
 ## ----eval=FALSE---------------------------------------------------------------
-# pvals=matrix(0,1000,13)
+# pvals=matrix(0,1000,14)
 # for(i in 1:1000)
 #   pvals[i, ]=R2sample::twosample_test(runif(100), runif(100), B=1000)$p.values
 
 ## ----eval=FALSE---------------------------------------------------------------
 # colnames(pvals)=names(R2sample::twosample_test(runif(100), runif(100), B=1000)$p.values)
 # p1=apply(pvals[, c("ZK", "ZC", "Wassp1", "Kuiper", "ES small" )], 1, min)
-# p2=apply(pvals[, c("KS", "Kuiper", "AD", "CvM", "LR")], 1, min)
+# p2=apply(pvals[, c("KS", "Kuiper", "AD", "CvM")], 1, min)
 
 ## -----------------------------------------------------------------------------
 tmp=R2sample::pvaluecdf

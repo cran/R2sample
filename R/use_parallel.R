@@ -16,6 +16,7 @@
 #'
 #' @keywords internal
 #'
+#' @noRd
 use_parallel <- function(tm, nparam, B, maxProcessor, threshold = 20) {
   
   # Always respect an explicit request for one processor

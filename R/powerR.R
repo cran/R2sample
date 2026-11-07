@@ -9,10 +9,13 @@
 #' @param  B = 1000 number of simulation runs
 #' @param  SuppressMessages = FALSE print informative messages?
 #' @param  maxProcessor maximum number of cores to use. If maxProcessor=1 no parallel computing is used.
+#' @param seed =NULL, optional seed for reproducibility
 #' @return A numeric vector of power values.
-#' @export 
+#' @keywords internal
+#' @noRd
 powerR=function(rxy, xparam, yparam,TS, typeTS, TSextra, alpha=0.05, 
-                    B=1000, SuppressMessages, maxProcessor) {
+                    B=1000, SuppressMessages, maxProcessor, seed=NULL) {
+   set_seed(seed)
    dta=rxy(xparam[1], yparam[1])
    if(typeTS==5) TSextra$adw=weights(dta)
    TS_data = calcTS(dta, TS, typeTS, TSextra);
@@ -40,6 +43,8 @@ powerR=function(rxy, xparam, yparam,TS, typeTS, TSextra, alpha=0.05,
    if(maxProcessor>1) {
      cl <- parallel::makeCluster(maxProcessor)
      on.exit(parallel::stopCluster(cl), add=TRUE)
+     if(!is.null(seed))
+       parallel::clusterSetRNGStream(cl, iseed=seed)
    }   
    if(maxProcessor==1) { # no parallel processing 
          tmp=powerC(rxy=rxy, xparam, yparam, TS, typeTS, TSextra, B=B)
@@ -65,9 +70,15 @@ powerR=function(rxy, xparam, yparam,TS, typeTS, TSextra, alpha=0.05,
        Index=c(1:nrow(Data))[paramalt[,1]==xparam[i]&paramalt[,2]==yparam[i]]
        tmpD=Data[Index, , drop=FALSE]
        tmpS=Simulated[Index, , drop=FALSE]
-       crtval=apply(tmpS, 2, quantile, prob=1-alpha, na.rm=TRUE)
-        for(j in seq_along(crtval)) 
-         pwr[i, j]=sum(tmpD[ ,j]>crtval[j])/nrow(tmpD)
+# For each simulated data set find the p value against the simulated null
+# distribution, counting ties as in twosample_test, and reject if p<alpha
+       for(j in 1:ncol(tmpD)) {
+         sims=sort(tmpS[, j])
+         obs=tmpD[, j]
+         nless=findInterval(obs-1e-9*abs(obs), sims, left.open=TRUE)
+         pv=(length(sims)-nless)/length(sims)
+         pwr[i, j]=mean(pv<alpha)
+       }
     }   
     pwr
 }

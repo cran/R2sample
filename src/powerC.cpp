@@ -15,6 +15,7 @@ using namespace Rcpp;
 //' @param B =1000 number of simulation runs
 //' @keywords internal
 //' @return A list values of test statistics
+//' @noRd
 // [[Rcpp::export(rng=false)]]
 List powerC(Function rxy, 
             NumericVector xparam,                       

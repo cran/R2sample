@@ -9,10 +9,11 @@ using namespace Rcpp;
 //' @param w numeric vector of weights 
 //' @keywords internal
 //' @return sum of weights in bins
+//' @noRd
 // [[Rcpp::export]]
-Rcpp::NumericMatrix wbincounter(std::vector<double>& x, 
-                                std::vector<double>& bins, 
-                                std::vector<double>& w) {
+Rcpp::NumericMatrix wbincounter(std::vector<double> x,
+                                const std::vector<double>& bins,
+                                std::vector<double> w) {
   int n=x.size(), m=bins.size(), i, j;
   NumericMatrix wc(m-1, 2);
   

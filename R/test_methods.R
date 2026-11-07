@@ -9,15 +9,15 @@
 test_methods=function(doMethods, Continuous, UseLargeSample, WithWeights) {
     if(doMethods[1]%in%c("all","default")) return(FALSE)
     if(Continuous & !UseLargeSample &!WithWeights) 
-       methods=c("KS","Kuiper","CvM","AD","LR","ZA","ZK","ZC",
-                 "Wassp1","ES large","ES small","EP large","EP small")
+       methods=c("KS","Kuiper","CvM","AD","ZA","ZK","ZC",
+                 "Wassp1","EppsS","HHG","ES large","ES small","EP large","EP small")
     if(Continuous & !UseLargeSample &WithWeights) 
        methods=c("KS","Kuiper","CvM","AD",
                 "ES large","ES small","EP large","EP small")
     if(Continuous & UseLargeSample &!WithWeights) 
-       methods=c("KS","Kuiper","CvM","AD")
+       methods=c("KS","Kuiper","CvM","AD","EppsS","HHG")
     if(!Continuous) 
-       methods=c("KS","Kuiper","CvM","AD","LR","ZA", "Wassp1","large","small")
+       methods=c("KS","Kuiper","CvM","AD","ZA", "Wassp1","EppsS","HHG","large","small")
     Good=TRUE
     for(i in seq_along(doMethods)) {
       if(!(doMethods[i]%in%methods)) {Good=FALSE;break}
@@ -31,9 +31,10 @@ test_methods=function(doMethods, Continuous, UseLargeSample, WithWeights) {
          message("Kuiper               Kuiper")
          message("Cramer-vonMises      CvM")
          message("Anderson-Darling     AD")
-         message("Lehmann-Rosenblatt   LR")
          message("Zhang's tests        ZA, ZK and ZC")
          message("Wasserstein          Wassp1")
+         message("Epps-Singleton       EppsS")
+         message("HHG                  HHG")
          message("Chi square tests     ES large, ES small")
          message("                     EP large, EP small")
     }
@@ -54,6 +55,8 @@ test_methods=function(doMethods, Continuous, UseLargeSample, WithWeights) {
       message("Kuiper               Kuiper")
       message("Cramer-vonMises      CvM")
       message("Anderson-Darling     AD")
+      message("Epps-Singleton       EppsS")
+      message("HHG                  HHG")
     }
     if(!Continuous) {
       message("For discrete data included methods are")
@@ -62,9 +65,10 @@ test_methods=function(doMethods, Continuous, UseLargeSample, WithWeights) {
       message("Kuiper               Kuiper")
       message("Cramer-vonMises      CvM")
       message("Anderson-Darling     AD")
-      message("Lehmann-Rosenblatt   LR")
       message("Zhang's tests        ZA")
       message("Wasserstein          Wassp1")
+      message("Epps-Singleton       EppsS")
+      message("HHG                  HHG")
       message("Chi square tests     large, small")
     }
     TRUE

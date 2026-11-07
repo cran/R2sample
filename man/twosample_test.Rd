@@ -13,6 +13,7 @@ twosample_test(
   wx = rep(1, length(x)),
   wy = rep(1, length(y)),
   B = 5000,
+  seed = NULL,
   nbins = c(50, 10),
   minexpcount = 5,
   maxProcessor,
@@ -40,6 +41,8 @@ twosample_test(
 
 \item{B}{=5000, number of simulation runs for permutation test}
 
+\item{seed}{=NULL, optional seed for reproducibility}
+
 \item{nbins}{=c(50,10), number of bins for chi square tests.}
 
 \item{minexpcount}{=5, minimum required expected counts for chi-square tests.}
@@ -54,7 +57,9 @@ twosample_test(
 
 \item{SuppressMessages}{= FALSE print informative messages?}
 
-\item{doMethods}{="all" a vector of codes for the methods to include. If "all", all methods are used.}
+\item{doMethods}{="all" a vector of codes for the methods to include. If "all", all methods are used.
+For continuous data without weights and for discrete data this includes the HHG test
+(Heller, Heller, Kaufman, Brill and Gorfine 2016), see the vignette.}
 }
 \value{
 A list of two numeric vectors, the test statistics and the p values.

@@ -7,6 +7,7 @@ using namespace Rcpp;
 //' @param TSextra extra stuff
 //' @keywords internal
 //' @return A list of permuted vectors
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List gen_sim_data(List dta, List TSextra) {
    List newdta; 
@@ -45,6 +46,7 @@ int getI(NumericVector p) {
 //' @param TSextra extra stuff
 //' @keywords internal
 //' @return A list of permuted vectors
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List gen_cont_noweights(NumericVector x, 
                      NumericVector y, List TSextra) {
@@ -87,6 +89,7 @@ Rcpp::List gen_cont_noweights(NumericVector x,
 //' @param TSextra extra stuff
 //' @keywords internal
 //' @return A list of permuted vectors
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List gen_cont_weights(NumericVector x, 
                      NumericVector y,
@@ -145,6 +148,7 @@ Rcpp::List gen_cont_weights(NumericVector x,
 //' @param TSextra extra stuff
 //' @keywords internal
 //' @return A list of permuted vectors
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::List gen_disc(NumericVector dtax, 
                     NumericVector dtay,
@@ -162,7 +166,7 @@ Rcpp::List gen_disc(NumericVector dtax,
     return out;
   }
   List out;
-  int nx, ny, n, i, j,  d, k=dtax.size();
+  int nx, ny, n, i, j, k=dtax.size();
   NumericVector xout(k), yout(k);
   IntegerVector Index(k);
   int samplingmethod=TSextra["samplingmethod"];
@@ -215,33 +219,22 @@ Rcpp::List gen_disc(NumericVector dtax,
       } 
   }
   if(samplingmethod==2) {
-    double p=double(nx)/double(nx+ny);
-    NumericVector pr(x.size());
-    pr(0)=double(xy(0));
-    for(int i=1;i<xy.size();++i) 
-      pr(i)=pr(i-1)+double(xy(i));
-    for(int i=0;i<xy.size();++i) 
-      pr(i)=pr(i)/pr(xy.size()-1);
-    IntegerVector tt(1), newx(i), newy(i);
+/* Draw from the permutation distribution directly: given the class totals
+   xy and nx, the permuted counts (x_1,..,x_k) are multivariate
+   hypergeometric. Sample them sequentially:
+   x_i ~ Hypergeometric(white=xy_i, black=rest-xy_i, drawn=nx-sum_{j<i} x_j),
+   where rest = sum_{j>=i} xy_j. This is exact, needs k random numbers and
+   always gives 0<=x_i<=xy_i. */
+    int need=nx, rest=n;
     for(i=0;i<k;++i) {
-      tt=Rcpp::rbinom(1, xy(i), p);
-      newx(i)=tt(0);
-      newy(i)=xy(i)-tt(0);
-    }   
-    d=sum(x)-sum(newx);
-    while (d<0) {
-      j=getI(pr);
-      newx(j)=newx(j)-1;
-      d=d+1;
+      if(need==0) x[i]=0;
+      else if(rest==xy[i]) x[i]=need;
+      else x[i]=(int) R::rhyper(xy[i], rest-xy[i], need);
+      y[i]=xy[i]-x[i];
+      need-=x[i];
+      rest-=xy[i];
     }
-    while (d>0) {
-      j=getI(pr);
-      newx(j)=newx(j)+1;
-      d=d-1;
-    }
-    x=newx;
-    y=xy-newx;
-  }  
+  }
   for(i=0;i<k;++i) {
       xout[i]=x[i];
       yout[i]=y[i];

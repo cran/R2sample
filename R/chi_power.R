@@ -8,6 +8,7 @@
 #' @param  minexpcount =5 smallest number of counts required in each bin
 #' @param  typeTS  type of problem, continuous/discrete, with/without weights
 #' @return A matrix of power values
+#' @noRd
 
 chi_power = function(rxy, alpha=0.05, B=1000, xparam, yparam, 
                      nbins=c(50, 10), minexpcount=5, typeTS) {

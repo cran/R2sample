@@ -13,6 +13,7 @@ twosample_test_adjusted_pvalue(
   wx = rep(1, length(x)),
   wy = rep(1, length(y)),
   B = c(5000, 1000),
+  seed = NULL,
   nbins = c(50, 10),
   minexpcount = 5,
   samplingmethod = "independence",
@@ -38,6 +39,8 @@ twosample_test_adjusted_pvalue(
 
 \item{B}{=c(5000, 1000), number of simulation runs for permutation test}
 
+\item{seed}{=NULL, optional seed for reproducibility}
+
 \item{nbins}{=c(50,10), number of bins for chi square tests.}
 
 \item{minexpcount}{= 5, minimum required expected counts for chi-square tests}
@@ -51,7 +54,7 @@ twosample_test_adjusted_pvalue(
 \item{doMethods}{="all" a vector of codes for the methods to include. If "all", all methods are used.}
 }
 \value{
-A list of two numeric vectors, the test statistics and the p values.
+(invisibly) a list with the p values of the individual tests and the adjusted p value of the combined test. These are also printed as messages.
 }
 \description{
 This function runs a number of two sample tests using Rcpp and parallel computing and then finds the correct p value for the combined tests.

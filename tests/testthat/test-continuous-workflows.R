@@ -35,7 +35,8 @@ test_that("continuous two-sample workflows run", {
       doMethods = c("KS", "AD")
     )
   )
-  expect_null(adjusted)
+  expect_type(adjusted, "list")
+  expect_true(adjusted$adjusted.p.value >= 0 && adjusted$adjusted.p.value <= 1)
   expect_true(any(grepl("adjusted p value", adjusted_messages,
                         ignore.case = TRUE)))
 

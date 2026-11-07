@@ -2,6 +2,7 @@
 #' @param  x a list of two vectors
 #' @param  d =4 number of digits to round to
 #' @return A list with rounded vectors
+#' @noRd
 signif_digits=function(x, d=4) {
    stat=x$statistics
    pval=x$p.values
@@ -17,10 +18,12 @@ signif_digits=function(x, d=4) {
         k=0
         repeat {
           k=k+1
+          if(abs(stat[i])<1e-6) break
           if(k>nchar(y[[i]][2])) break
           if(as.numeric(substr(y[[i]][2], 1, k))!=0) break
         }
-        tmp=paste0("0.", paste0(rep("0",k-1),collapse=""), substr(y[[i]][2],k,d+k-1), collapse = "")
+        if(abs(stat[i])<1e-10) tmp="0"
+        else tmp=paste0("0.", paste0(rep("0",k-1),collapse=""), substr(y[[i]][2],k,d+k-1), collapse = "")
         z[i]=as.numeric(tmp)   
       } 
    }

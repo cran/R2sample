@@ -2,22 +2,22 @@
 % Please edit documentation in R/timecheck.R
 \name{timecheck}
 \alias{timecheck}
-\title{test function}
+\title{Test computation time}
 \usage{
 timecheck(dta, TS, typeTS, TSextra)
 }
 \arguments{
 \item{dta}{data set}
 
-\item{TS}{test statistics}
+\item{TS}{test-statistic routine}
 
 \item{typeTS}{format of TS}
 
-\item{TSextra}{additional info TS}
+\item{TSextra}{additional information passed to TS}
 }
 \value{
-Mean computation time
+Mean computation time in seconds
 }
 \description{
-test function
+Estimate the time required for one calculation of the test statistic.
 }

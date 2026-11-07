@@ -1,4 +1,5 @@
 #include <Rcpp.h>
+#include "weights.h"
 using namespace Rcpp;
 //' This function calculates the test statistics for continuous data
 //' @param  dta data set
@@ -7,9 +8,10 @@ using namespace Rcpp;
 //' @param  TSextra list passed to TS function
 //' @keywords internal
 //' @return A vector of numbers
+//' @noRd
 // [[Rcpp::export]]
 NumericVector calcTS(
-     Rcpp::List dta, 
+     Rcpp::List dta,
      Rcpp::Function TS,
      int typeTS,
      Rcpp::List TSextra) {
@@ -19,14 +21,14 @@ NumericVector calcTS(
      int nx=xx.size(),ny=yy.size();
      for(int i=0;i<nx;++i) x[i]=xx[i];
      for(int i=0;i<ny;++i) y[i]=yy[i];
-     if(typeTS==1) TS_data=TS(x, y); 
+     if(typeTS==1) TS_data=TS(x, y);
      if(typeTS==2) {
-       NumericVector wxx=dta["x"], wx(wxx.size()), wyy=dta["y"], wy(wyy.size());
+       NumericVector wxx=dta["wx"], wx(wxx.size()), wyy=dta["wy"], wy(wyy.size());
        for(int i=0;i<nx;++i) wx[i]=wxx[i];
-       for(int i=0;i<ny;++i) wy[i]=wyy[i];       
-       TS_data=TS(x, y, wx, wy); 
-     }   
-     if(typeTS==3) TS_data=TS(x, y);   
+       for(int i=0;i<ny;++i) wy[i]=wyy[i];
+       TS_data=TS(x, y, wx, wy);
+     }
+     if(typeTS==3) TS_data=TS(x, y);
      if(typeTS==4) TS_data=TS(x, y, TSextra);
    }
    else {
@@ -35,15 +37,15 @@ NumericVector calcTS(
      for(int i=0;i<vals.size();++i) {
        x[i]=xx[i];
        y[i]=yy[i];
-     }   
+     }
      if(typeTS==5) {
-       NumericVector adw=TSextra["adw"];
-       TS_data=TS(x, y, vals, adw);  
-     }   
-     if(typeTS==6) TS_data=TS(x, y, vals);  
-     if(typeTS==7) TS_data=TS(x, y, vals, TSextra); 
+/* AD weights depend on x+y, so they are recalculated for every data set.
+   This matters if new data is generated via rnull (parametric bootstrap). */
+       NumericVector adw=weights(dta);
+       TS_data=TS(x, y, vals, adw);
+     }
+     if(typeTS==6) TS_data=TS(x, y, vals);
+     if(typeTS==7) TS_data=TS(x, y, vals, TSextra);
    }
    return  TS_data;
  }
- 
- 

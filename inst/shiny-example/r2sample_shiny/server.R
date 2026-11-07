@@ -3,7 +3,7 @@ library(ggplot2)
 library(Rcpp)
 library(grid)
 library("R2sample")
-#methods <- c("chi large", "chi small", "KS", "Kuiper", "AD", "CdM", "LR", "ZK", "ZA", "ZC", "Wassp1")
+#methods <- c("chi large", "chi small", "KS", "Kuiper", "AD", "CdM", "ZK", "ZA", "ZC", "Wassp1")
 
 shinyServer(function(input, output,session) {
 

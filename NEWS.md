@@ -1,3 +1,9 @@
+# R2sample 5.1.0
+               Some changes to case.studies
+               Some changes to internal functions.
+               Some changes to included routines
+               Some minor bug fixes
+                 
 # R2sample 5.0.0
                Added 80 new case studies and revamped run.studies routine. 
                A number of minor bug fixes.

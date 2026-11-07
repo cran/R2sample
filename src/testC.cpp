@@ -12,6 +12,7 @@ using namespace Rcpp;
 //' @param B =5000, number of simulation runs.
 //' @keywords internal
 //' @return A list with test statistics and p values
+//' @noRd
 // [[Rcpp::export(rng=false)]]
 List testC(List dta, 
           Function TS,
@@ -40,8 +41,13 @@ List testC(List dta,
     List simdta=gen_sim_data(dta, TSextra);
     PutRNGstate();
     TS_sim= calcTS(simdta, TS, typeTS, TSextra);
+/* count simulated values at least as large as the observed one. Ties are
+   common (KS, Kuiper, discrete data) and have to be counted, otherwise the
+   test is anti-conservative. A small relative tolerance makes sure values
+   that are equal up to rounding errors are treated as ties. */
     for(i=0;i<nummethods;++i) {
-       if(TS_data(i)<TS_sim(i)) pvals(i)=pvals(i)+1.0;
+       double tol=1e-9*std::abs(TS_data(i));
+       if(TS_sim(i)>=TS_data(i)-tol) pvals(i)=pvals(i)+1.0;
     }
   }
 

@@ -12,6 +12,7 @@ twosample_power(
   With.p.value = FALSE,
   alpha = 0.05,
   B = 1000,
+  seed = NULL,
   nbins = c(50, 10),
   minexpcount = 5,
   UseLargeSample,
@@ -35,6 +36,8 @@ twosample_power(
 \item{alpha}{=0.05, the level of the hypothesis test}
 
 \item{B}{=1000, number of simulation runs.}
+
+\item{seed}{=NULL, optional seed for reproducibility}
 
 \item{nbins}{=c(50,10), number of bins for chi large and chi small.}
 

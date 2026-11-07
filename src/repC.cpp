@@ -7,6 +7,7 @@ using namespace Rcpp;
 //' @param times integer vector
 //' @keywords internal
 //' @return A numeric vector
+//' @noRd
 // [[Rcpp::export]]
 Rcpp::NumericVector repC(Rcpp::NumericVector x, Rcpp::IntegerVector times) {
   int n=x.size(), ntimes, i, j, k;
